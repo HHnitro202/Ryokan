@@ -237,10 +237,24 @@ pub async fn cleanup_series_files(
             .await
             .map_err(|e| e.to_string())
     };
+    let valid_folder = if folder_name.contains('/') {
+        // Only a separately recorded, validated category prefix permits a
+        // multi-component library path; a corrupt raw folder_name never does.
+        series::get_by_id(&state.db, series_id)
+            .await
+            .map_err(|e| e.to_string())?
+            .is_some_and(|row| {
+                crate::services::media::usable_folder_name(&row.folder_name)
+                    && crate::services::media::usable_library_folder(&row.library_folder())
+                    && row.library_folder() == folder_name
+            })
+    } else {
+        crate::services::media::usable_folder_name(folder_name)
+    };
     if let Some(root) = media_root
         && !root.trim().is_empty()
         && !folder_name.trim().is_empty()
-        && !crate::services::media::usable_folder_name(folder_name)
+        && !valid_folder
     {
         // `.`, `..` or a path: never joined onto the media root.
         report.folder_status = "refused";

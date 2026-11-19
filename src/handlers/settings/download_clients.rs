@@ -399,6 +399,10 @@ pub struct DownloadClientUpsertForm {
     /// Downloads"). Default on.
     #[serde(default)]
     pub remove_failed: Option<String>,
+    #[serde(default)]
+    pub direct_to_library: Option<String>,
+    #[serde(default)]
+    pub library_root: String,
 }
 
 #[derive(Deserialize, utoipa::ToSchema)]
@@ -490,6 +494,18 @@ pub async fn settings_download_clients_upsert(
             );
         }
     };
+    if form.direct_to_library.is_some()
+        && (form.kind != "qbittorrent"
+            || crate::services::download_client::destination::safe_absolute_path(
+                &form.library_root,
+            )
+            .is_none())
+    {
+        return crate::handlers::responses::htmx_aware_redirect(
+            is_htmx,
+            "/settings?tab=downloads&err=Direct%20library%20downloads%20require%20qBittorrent%20and%20an%20absolute%20library%20root",
+        );
+    }
     let payload = DownloadClientForm {
         name,
         kind: form.kind.as_str(),
@@ -509,6 +525,17 @@ pub async fn settings_download_clients_upsert(
 
     match result {
         Ok(id) => {
+            if let Err(e) = crate::models::download_clients::set_library_destination(
+                &state.db,
+                id,
+                form.direct_to_library.is_some(),
+                &form.library_root,
+            )
+            .await
+            {
+                return (axum::http::StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+                    .into_response();
+            }
             if let Err(e) = crate::models::download_clients::set_remove_completed(
                 &state.db,
                 id,
@@ -1106,6 +1133,8 @@ mod tests {
             is_default: None,
             remove_completed: Some("on".to_string()),
             remove_failed: Some("on".to_string()),
+            direct_to_library: None,
+            library_root: String::new(),
         }
     }
 
@@ -1398,6 +1427,8 @@ mod write_only_secret_tests {
             is_default: Some("on".into()),
             remove_completed: None,
             remove_failed: None,
+            direct_to_library: None,
+            library_root: String::new(),
         }
     }
 

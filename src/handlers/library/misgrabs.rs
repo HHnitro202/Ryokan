@@ -160,8 +160,8 @@ pub async fn restore_misgrab(
             "Cannot restore: no source URL was recorded for this grab",
         );
     };
-    let Some(client) = state
-        .resolve_grab_client(row.download_client_id, &row.hash)
+    let Some((dispatch_client_id, client)) = state
+        .resolve_grab_client_with_id(row.download_client_id, &row.hash)
         .await
     else {
         return respond(
@@ -172,7 +172,30 @@ pub async fn restore_misgrab(
             "Cannot restore: no download client is configured",
         );
     };
-    if let Err(e) = client.add_torrent_returning_id(&url, &row.hash).await {
+    let destination = match crate::services::download_client::destination::for_grab(
+        db,
+        dispatch_client_id,
+        Some(row.series_id),
+        &row.torrent_name,
+        row.is_batch,
+    )
+    .await
+    {
+        Ok(destination) => destination,
+        Err(error) => {
+            return respond(
+                is_htmx,
+                false,
+                id,
+                "restore",
+                &format!("Cannot restore: {error}"),
+            );
+        }
+    };
+    if let Err(e) = client
+        .add_torrent_at(&url, &row.hash, destination.as_deref())
+        .await
+    {
         logger::warn(
             db,
             LogCategory::DownloadClient,

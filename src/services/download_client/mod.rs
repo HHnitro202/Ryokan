@@ -24,6 +24,7 @@ use std::time::{Duration, Instant};
 #[cfg(test)]
 pub(crate) mod test_helpers;
 
+pub mod destination;
 pub mod qbittorrent;
 
 /// Stub Deluge implementation. Exists during Phase 1 to compile-check
@@ -179,6 +180,37 @@ pub trait DownloadClient: Send + Sync {
         info_hash: &str,
         pick: &mut (dyn for<'a> FnMut(&'a [String]) -> Option<Vec<usize>> + Send),
     ) -> Result<SelectiveOutcome, String>;
+
+    /// Add-time library destination, in the client's filesystem. Other
+    /// clients retain their existing behavior through these defaults.
+    async fn add_torrent_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        _destination: Option<&str>,
+    ) -> Result<(AddOutcome, String), String> {
+        self.add_torrent_returning_id(url, info_hash).await
+    }
+
+    async fn add_torrent_paused_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        _destination: Option<&str>,
+    ) -> Result<AddOutcome, String> {
+        self.add_torrent_paused(url, info_hash).await
+    }
+
+    async fn add_torrent_filtered_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        _destination: Option<&str>,
+        pick: &mut (dyn for<'a> FnMut(&'a [String]) -> Option<Vec<usize>> + Send),
+    ) -> Result<SelectiveOutcome, String> {
+        self.add_torrent_with_file_filter(url, info_hash, pick)
+            .await
+    }
 
     /// List torrents scoped to Ryokan's owned set only. Each impl
     /// defines "owned" — qBit uses `?category=`; Deluge the Label
@@ -666,12 +698,10 @@ pub async fn rebuild_clients_cache(cache: &crate::DownloadClientsCache, db: &sql
                 &row.password,
                 &row.label,
             ))),
-            "qbittorrent" if !row.url.is_empty() => Some(Arc::new(qbittorrent::QbitClient::new(
-                &row.url,
-                &row.username,
-                &row.password,
-                &row.label,
-            ))),
+            "qbittorrent" if !row.url.is_empty() => Some(Arc::new(
+                qbittorrent::QbitClient::new(&row.url, &row.username, &row.password, &row.label)
+                    .with_library_root(&row.library_root),
+            )),
             // SAB takes (url, username, api_key, category).
             // The `download_clients.password` column carries the SAB
             // API key for usenet rows (SAB has no per-user auth at

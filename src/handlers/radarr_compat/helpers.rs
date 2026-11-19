@@ -157,7 +157,7 @@ pub(super) async fn build_radarr_movie_from_search(
     let is_in_library = db_series.is_some();
     let internal_id = db_series.map(|s| s.id).unwrap_or(0);
 
-    let folder_name = db_series.map(|s| s.folder_name.clone()).unwrap_or_else(|| {
+    let folder_name = db_series.map(|s| s.library_folder()).unwrap_or_else(|| {
         crate::services::naming::series_folder(
             &cfg.series_folder_format,
             &cfg.title_language,
@@ -233,14 +233,14 @@ pub(super) async fn build_radarr_movie_from_tracked(
     tmdb_id: i64,
     cfg: &config::Config,
 ) -> RadarrMovie {
-    let disk_files = media::scan_series_folder(&cfg.media_root, &s.folder_name).await;
+    let disk_files = media::scan_series_folder(&cfg.media_root, &s.library_folder()).await;
     let has_file = !disk_files.is_empty();
     let monitored = s.monitor_mode_enum() != monitoring::MonitorMode::None;
 
     let path = if cfg.media_root.is_empty() {
-        format!("/media/{}", s.folder_name)
+        format!("/media/{}", s.library_folder())
     } else {
-        format!("{}/{}", cfg.media_root, s.folder_name)
+        format!("{}/{}", cfg.media_root, s.library_folder())
     };
 
     let title = if !s.title.is_empty() {

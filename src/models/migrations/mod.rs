@@ -3062,6 +3062,10 @@ pub async fn migrate(db: &SqlitePool) -> Result<(), sqlx::Error> {
     // imported grab's item from its client, or found it already gone,
     // so the finished-seed sweep stops looking at the row.
     for sql in [
+        "ALTER TABLE series ADD COLUMN library_subdir TEXT NOT NULL DEFAULT ''",
+        "ALTER TABLE grabbed_torrents ADD COLUMN direct_library_location TEXT NOT NULL DEFAULT ''",
+        "ALTER TABLE download_clients ADD COLUMN direct_to_library INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE download_clients ADD COLUMN library_root TEXT NOT NULL DEFAULT ''",
         "ALTER TABLE download_clients ADD COLUMN remove_completed INTEGER NOT NULL DEFAULT 1",
         // Sonarr's per-client "Remove Failed Downloads": whether a
         // download the client itself reported as failed is deleted

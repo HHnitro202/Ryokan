@@ -104,6 +104,15 @@ pub async fn grab_batch_result(
     // part number. Franchise roots (JoJo S1) deliberately fall
     // through so the multi-series auto-expand path below can route
     // each sibling's files into its own library entry instead.
+    let destination = crate::services::download_client::destination::for_grab(
+        &state.db,
+        dispatch_client_id,
+        series_id,
+        &title,
+        true,
+    )
+    .await
+    .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e))?;
     let wants_selective =
         !info_hash.is_empty() && auto_search::has_selective_discriminator(&detail);
     // `effective_hash` is the id Ryokan persists on `grabbed_torrents.hash`
@@ -119,7 +128,7 @@ pub async fn grab_batch_result(
         let mut pick =
             move |files: &[String]| auto_search::pick_wanted_file_indices(files, &detail_clone);
         match qbit
-            .add_torrent_with_file_filter(&url, &info_hash, &mut pick)
+            .add_torrent_filtered_at(&url, &info_hash, destination.as_deref(), &mut pick)
             .await
         {
             // Selective branch echoes the precomputed info_hash since
@@ -149,7 +158,7 @@ pub async fn grab_batch_result(
                 )
                 .await;
                 let (_, hash) = qbit
-                    .add_torrent_returning_id(&url, &info_hash)
+                    .add_torrent_at(&url, &info_hash, destination.as_deref())
                     .await
                     .map_err(|e| (axum::http::StatusCode::BAD_GATEWAY, e))?;
                 (None, hash)
@@ -157,7 +166,7 @@ pub async fn grab_batch_result(
         }
     } else {
         let (_, hash) = qbit
-            .add_torrent_returning_id(&url, &info_hash)
+            .add_torrent_at(&url, &info_hash, destination.as_deref())
             .await
             .map_err(|e| (axum::http::StatusCode::BAD_GATEWAY, e))?;
         (None, hash)
@@ -397,6 +406,15 @@ pub async fn grab_interactive_result(
         "Download client not configured".to_string(),
     ))?;
 
+    let destination = crate::services::download_client::destination::for_grab(
+        &state.db,
+        dispatch_client_id,
+        series_id,
+        &title,
+        body["is_batch"].as_bool().unwrap_or(false),
+    )
+    .await
+    .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e))?;
     // If the target is a multi-part entry ("Kizumonogatari II") OR a
     // subtitled season of a franchise ("Stardust Crusaders"), try the
     // selective-file download path so a megapack release only pulls
@@ -414,7 +432,7 @@ pub async fn grab_interactive_result(
         let mut pick =
             move |files: &[String]| auto_search::pick_wanted_file_indices(files, &detail_clone);
         match qbit
-            .add_torrent_with_file_filter(&url, &info_hash, &mut pick)
+            .add_torrent_filtered_at(&url, &info_hash, destination.as_deref(), &mut pick)
             .await
         {
             Ok(crate::services::download_client::SelectiveOutcome::Filtered(kept)) => {
@@ -435,7 +453,7 @@ pub async fn grab_interactive_result(
                 )
                 .await;
                 let (_, hash) = qbit
-                    .add_torrent_returning_id(&url, &info_hash)
+                    .add_torrent_at(&url, &info_hash, destination.as_deref())
                     .await
                     .map_err(|e| (axum::http::StatusCode::BAD_GATEWAY, e))?;
                 (None, hash)
@@ -443,7 +461,7 @@ pub async fn grab_interactive_result(
         }
     } else {
         let (_, hash) = qbit
-            .add_torrent_returning_id(&url, &info_hash)
+            .add_torrent_at(&url, &info_hash, destination.as_deref())
             .await
             .map_err(|e| (axum::http::StatusCode::BAD_GATEWAY, e))?;
         (None, hash)

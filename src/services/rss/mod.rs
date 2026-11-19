@@ -1209,12 +1209,13 @@ async fn sync_once_inner(state: &AppState, trigger: &str) -> Result<SyncSummary,
             .filter(|ep| monitored_eps.contains(ep))
             .collect();
 
-        let disk_files = if let Some(cached) = disk_cache.get(&found.series.folder_name) {
+        let disk_files = if let Some(cached) = disk_cache.get(&found.series.library_folder()) {
             cached
         } else {
-            let files = media::scan_series_folder(&cfg.media_root, &found.series.folder_name).await;
+            let files =
+                media::scan_series_folder(&cfg.media_root, &found.series.library_folder()).await;
             disk_cache
-                .entry(found.series.folder_name.clone())
+                .entry(found.series.library_folder())
                 .or_insert(files)
         };
         let qtags = if let Some(cached) = quality_tags_cache.get(&found.series.id) {
@@ -1566,7 +1567,32 @@ async fn sync_once_inner(state: &AppState, trigger: &str) -> Result<SyncSummary,
             .await;
             continue;
         }
-        match client.add_torrent_returning_id(&grab_url, &info_hash).await {
+        let destination = match crate::services::download_client::destination::for_grab(
+            &state.db,
+            dispatch_client_id,
+            Some(cand.found.series.id),
+            &cand.item.title,
+            cand.item.is_batch,
+        )
+        .await
+        {
+            Ok(destination) => destination,
+            Err(error) => {
+                logger::error(
+                    &state.db,
+                    LogCategory::Grab,
+                    "Grab refused: direct-library configuration",
+                    &error,
+                )
+                .await;
+                skipped += 1;
+                continue;
+            }
+        };
+        match client
+            .add_torrent_at(&grab_url, &info_hash, destination.as_deref())
+            .await
+        {
             Ok((_outcome, canonical_id)) => {
                 grabbed += 1;
                 let action = if cand.is_upgrade { "upgrade" } else { "new" };

@@ -24,6 +24,7 @@ fn series(id: i64, title: &str, episodes: i32, cumulative_prior_episodes: i32) -
         season_year: None,
         end_year: None,
         folder_name: title.to_string(),
+        library_subdir: String::new(),
         monitor_mode: "all".to_string(),
         allow_upgrades: true,
         allow_pt_upgrades: false,

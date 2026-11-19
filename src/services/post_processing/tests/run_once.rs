@@ -4040,7 +4040,7 @@ async fn a_regenerated_series_folder_is_never_another_series_folder() {
         .unwrap()
         .unwrap();
 
-    let ctx = post_processing::load_series_import_ctx(&state, &cfg, legacy)
+    let ctx = post_processing::load_series_import_ctx(&state, &cfg, legacy, None)
         .await
         .expect("context");
     assert_eq!(ctx.folder_name, "Show Title (2)");

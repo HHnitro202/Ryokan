@@ -15,6 +15,7 @@ use crate::services::{logger, media, naming, nfo};
 
 mod artwork_copy;
 pub mod client_cleanup;
+mod direct_destination;
 pub mod extras;
 mod state;
 pub mod temp_sweep;
@@ -1105,6 +1106,23 @@ impl SeriesImportCtx {
     }
 }
 
+/// `create_dir_all` already accepts an existing directory without requiring
+/// write access to its parent. Keep that behavior and retain the exact path
+/// and OS error when access or creation fails (for example across VirtIO-FS).
+async fn ensure_season_dir(path: &Path) -> Result<(), String> {
+    let worker_path = path.to_path_buf();
+    tokio::task::spawn_blocking(move || std::fs::create_dir_all(&worker_path))
+        .await
+        .map_err(|error| format!("create season dir {path:?}: worker failed: {error}"))?
+        .map_err(|error| {
+            format!(
+                "create season dir {path:?}: {error} (kind={:?}, raw_os_error={:?})",
+                error.kind(),
+                error.raw_os_error(),
+            )
+        })
+}
+
 /// Resolve the [`SeriesImportCtx`] for `series_id`: loads the series
 /// row, materializes its folder name + season directory, and warms up
 /// the episode metadata and AniList detail caches. Split out of
@@ -1114,66 +1132,21 @@ async fn load_series_import_ctx(
     state: &AppState,
     cfg: &config::Config,
     series_id: i64,
+    direct_season: Option<&str>,
 ) -> Result<SeriesImportCtx, String> {
     let series = series::get_by_id(&state.db, series_id)
         .await
         .map_err(|e| e.to_string())?
         .ok_or_else(|| format!("series {} not found", series_id))?;
 
-    // Auto-generate folder_name from the series-folder template (#124)
-    // if it was never set.
-    // Empty (never set) or unusable (`.`, `..`, from a title written
-    // before `sanitize_folder_name` handled dots and spaces together):
-    // regenerate it from the template, which can't produce either.
-    let folder_name = if !media::usable_folder_name(&series.folder_name) {
-        if nfo::best_title(&series).trim().is_empty() {
-            return Err(format!(
-                "series '{}' has no usable title for folder name",
-                series.title
-            ));
-        }
-        let generated = naming::series_folder(
-            &cfg.series_folder_format,
-            &cfg.title_language,
-            &naming::SeriesNames::from_series(&series),
-        );
-        // The uniqueness rule a new row gets (`series::upsert`): two
-        // dots-only titles both render `Unknown Series`, and a remake
-        // shares its original's title, so the plain name can be another
-        // series' folder.
-        let generated =
-            series::unique_series_folder(&state.db, generated, series.season_year, Some(series.id))
-                .await
-                .map_err(|e| e.to_string())?;
-        // Persist it so future imports skip this path.
-        let _ = series::update_folder(&state.db, series.id, &generated).await;
-        generated
-    } else {
-        series.folder_name.clone()
-    };
-
-    // `series_title` flows into `<showtitle>` in every episode NFO and
-    // into the renamed filename stem, so it respects the user's
-    // `title_language` preference. `folder_name` above stays on
-    // `best_title` because it's a one-time persisted default — later
-    // preference changes should not rename folders.
-    let series_title = nfo::title_for_preference(&series, &cfg.title_language);
-    let season_dir = Path::new(&cfg.media_root)
-        .join(&folder_name)
-        .join(naming::season_folder(
-            &cfg.season_folder_format,
-            &cfg.title_language,
-            &naming::SeriesNames::from_series(&series),
-            1,
-        ));
-
-    {
-        let season_dir = season_dir.clone();
-        tokio::task::spawn_blocking(move || std::fs::create_dir_all(&season_dir))
-            .await
-            .map_err(|e| format!("create season dir join: {}", e))?
-            .map_err(|e| format!("create season dir: {}", e))?;
+    let (folder_name, mut season_dir) =
+        crate::services::library_destination::resolve(&state.db, cfg, &series).await?;
+    if let Some(direct_season) = direct_season {
+        season_dir = PathBuf::from(direct_season);
     }
+    let series_title = nfo::title_for_preference(&series, &cfg.title_language);
+
+    ensure_season_dir(&season_dir).await?;
 
     let ep_meta = local_metadata::get_episode_map_for_series(&state.db, series.id)
         .await
@@ -1259,12 +1232,14 @@ async fn import_torrent(
     grab: &grabbed_torrents::GrabbedTorrent,
     torrent_hash: &str,
     torrent_save_path: &str,
+    direct_location: Option<&direct_destination::Location>,
     // Multi-client routing — the client this grab landed on, threaded
     // through from `run_once`'s per-grab resolution. Pre-PR-F this was
     // re-fetched here as `default_download_client()`, which silently
     // routed `get_files` to the wrong client for any pinned grab.
     client: &std::sync::Arc<dyn DownloadClient>,
 ) -> Result<ImportOutcome, String> {
+    let preserve_library_files = direct_location.is_some();
     let mut files = client
         .get_files(torrent_hash)
         .await
@@ -1764,7 +1739,16 @@ async fn import_torrent(
         let ctx = match series_ctx_cache.entry(target_series_id) {
             std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::hash_map::Entry::Vacant(entry) => {
-                match load_series_import_ctx(state, cfg, target_series_id).await {
+                match load_series_import_ctx(
+                    state,
+                    cfg,
+                    target_series_id,
+                    direct_location
+                        .filter(|_| target_series_id == grab.series_id)
+                        .map(|l| l.local_save_path.as_str()),
+                )
+                .await
+                {
                     Ok(ctx) => entry.insert(ctx),
                     Err(e) => {
                         logger::error(
@@ -2179,8 +2163,18 @@ async fn import_torrent(
             )
             .await;
         }
-        let dest_video = ctx.season_dir.join(&episode_name.file_name);
-        let dest_nfo = ctx.season_dir.join(format!("{}.nfo", episode_name.stem));
+        let already_placed = preserve_library_files
+            && crate::services::download_client::destination::already_in_season(
+                &src,
+                &ctx.season_dir,
+            )
+            .await;
+        let dest_video = if already_placed {
+            src.clone()
+        } else {
+            ctx.season_dir.join(&episode_name.file_name)
+        };
+        let dest_nfo = dest_video.with_extension("nfo");
 
         // Existing files for this episode slot (any extension). Matched
         // by parsing each name back through `parse_episode_span`
@@ -2198,37 +2192,33 @@ async fn import_torrent(
         // it into the spawned task.
         let existing_for_ep: Vec<(PathBuf, media::EpisodeSpan)> = {
             let season_dir = ctx.season_dir.clone();
+            let incoming = src.clone();
             tokio::task::spawn_blocking(move || -> Vec<(PathBuf, media::EpisodeSpan)> {
-                std::fs::read_dir(&season_dir)
+                let existing = if preserve_library_files {
+                    crate::services::direct_library::existing_episodes(&season_dir)
+                } else {
+                    std::fs::read_dir(&season_dir)
+                        .into_iter()
+                        .flatten()
+                        .filter_map(Result::ok)
+                        .map(|entry| entry.path())
+                        .filter_map(|path| {
+                            let name = path.file_name()?.to_str()?;
+                            if !is_video_file(name) && !media::is_stream_stub(name) {
+                                return None;
+                            }
+                            let span = media::parse_episode_span(&name.to_lowercase())?;
+                            Some((path, span))
+                        })
+                        .collect()
+                };
+                existing
                     .into_iter()
-                    .flatten()
-                    .filter_map(|e| e.ok())
-                    .map(|e| e.path())
-                    .filter_map(|p| {
-                        // Episode files only: the `.nfo` and the
-                        // subtitles named after a file go with it
-                        // through the recycle bin's companion sweep,
-                        // never as entries of their own. A `.strm` stub
-                        // (issue #287) is the episode's file to the
-                        // scanner, so the upgrade retires it too rather
-                        // than leaving two files on one episode.
-                        let is_episode_file = p
-                            .file_name()
-                            .and_then(|n| n.to_str())
-                            .is_some_and(|n| is_video_file(n) || media::is_stream_stub(n));
-                        if !is_episode_file {
-                            return None;
-                        }
-                        let span = p
-                            .file_name()
-                            .and_then(|n| n.to_str())
-                            .and_then(|n| media::parse_episode_span(&n.to_lowercase()))
-                            .filter(|s| {
-                                s.first <= ep_last
-                                    && s.last >= ep_num
-                                    && s.season.is_none_or(|n| n == season)
-                            })?;
-                        Some((p, span))
+                    .filter(|(path, _)| !already_placed || !files_share_inode(path, &incoming))
+                    .filter(|(_, span)| {
+                        span.first <= ep_last
+                            && span.last >= ep_num
+                            && span.season.is_none_or(|n| n == season)
                     })
                     .collect()
             })
@@ -2321,7 +2311,7 @@ async fn import_torrent(
         // same-directory rename, and the old torrent leaves the client
         // only after the swap.
         let is_upgrade = !existing_for_ep.is_empty();
-        let landing = if is_upgrade {
+        let landing = if is_upgrade && !already_placed {
             staging_path(&dest_video)
         } else {
             dest_video.clone()
@@ -2440,7 +2430,9 @@ async fn import_torrent(
                     &grab.torrent_name,
                 )
                 .await;
-                unstage_upgrade(&state.db, &cfg.post_processing_mode, &landing, &src).await;
+                if !already_placed {
+                    unstage_upgrade(&state.db, &cfg.post_processing_mode, &landing, &src).await;
+                }
                 // Issue #118: a stalled upgrade is an import failure the
                 // user wants to hear about, same as a failed placement.
                 crate::services::notifications::emit_import_failed(
@@ -2460,7 +2452,11 @@ async fn import_torrent(
             // destination is free. A failure here is exotic (the
             // directory changed under us) and leaves the new file at
             // the staged path, named in the log.
-            if let Err(e) = tokio::fs::rename(&landing, &dest_video).await {
+            if let Err(e) = if already_placed {
+                Ok(())
+            } else {
+                tokio::fs::rename(&landing, &dest_video).await
+            } {
                 logger::error(
                     &state.db,
                     LogCategory::PostProcess,
@@ -2588,6 +2584,22 @@ async fn import_torrent(
                     ctx.runtime_minutes,
                 )
                 .await;
+                if already_placed
+                    && let Err(e) = crate::services::direct_library::annotate_nfo(
+                        &dest_nfo, season, ep_num, ep_last,
+                    )
+                    .await
+                {
+                    logger::warn(
+                        &state.db,
+                        LogCategory::PostProcess,
+                        "Could not persist in-place episode numbering",
+                        &e.to_string(),
+                    )
+                    .await;
+                    failed_episodes.extend(resolved.episodes());
+                    continue;
+                }
                 imported_count += 1;
                 // Subtitles that travel with the video (Sonarr's "Import
                 // Extra Files"): named after the episode file so the
@@ -3177,7 +3189,7 @@ pub async fn write_series_sidecars(state: &AppState, series_id: i64) -> Result<(
         .map_err(|e| format!("series lookup failed: {e}"))?
         .ok_or_else(|| format!("series {series_id} not found"))?;
     // `.` / `..` would put the sidecars in the media root or above it.
-    if !media::usable_folder_name(&series_row.folder_name) {
+    if !media::usable_library_folder(&series_row.library_folder()) {
         return Err(format!("series {series_id} has no usable folder name"));
     }
     let cached_detail = metadata_cache::get_by_series_id(&state.db, series_id)
@@ -3186,15 +3198,10 @@ pub async fn write_series_sidecars(state: &AppState, series_id: i64) -> Result<(
         .flatten()
         .map(|c| c.detail);
 
-    let series_root = Path::new(cfg.media_root.trim()).join(&series_row.folder_name);
-    let season_dir = series_root.join(format!("Season {:02}", 1_i32));
-    {
-        let season_dir = season_dir.clone();
-        tokio::task::spawn_blocking(move || std::fs::create_dir_all(&season_dir))
-            .await
-            .map_err(|e| format!("create season dir join: {e}"))?
-            .map_err(|e| format!("create season dir: {e}"))?;
-    }
+    let (folder, season_dir) =
+        crate::services::library_destination::resolve(&state.db, &cfg, &series_row).await?;
+    let series_root = Path::new(cfg.media_root.trim()).join(folder);
+    ensure_season_dir(&season_dir).await?;
 
     let poster_dest = series_root.join("poster.jpg");
     let season_poster_dest = season_dir.join("folder.jpg");
@@ -3402,6 +3409,7 @@ pub async fn run_once(state: &AppState) {
     // Empty string means "row missing or path not configured" — the
     // import path falls back to legacy `cfg.<active_client>_download_path`.
     let mut download_path_per_client: HashMap<i64, String> = HashMap::new();
+    let mut library_root_per_client: HashMap<i64, String> = HashMap::new();
     for id in needed_ids {
         let Some(client) = state.client_by_id(id).await else {
             tracing::debug!("post_processing: skipping client id {id} — no longer in pool");
@@ -3414,7 +3422,12 @@ pub async fn run_once(state: &AppState) {
             .await
             .ok()
             .flatten()
-            .map(|r| r.download_path)
+            .map(|r| {
+                if r.kind == "qbittorrent" {
+                    library_root_per_client.insert(id, r.library_root);
+                }
+                r.download_path
+            })
             .unwrap_or_default();
         download_path_per_client.insert(id, path);
         match client.list_scoped().await {
@@ -3664,20 +3677,77 @@ pub async fn run_once(state: &AppState) {
             } else {
                 torrent.save_path.clone()
             };
-            crate::services::download_client::translate_client_path(
+            crate::services::download_client::destination::to_local(
                 &raw,
+                library_root_per_client
+                    .get(&grab_client_id)
+                    .map(String::as_str)
+                    .unwrap_or(""),
+                &cfg.media_root,
+            )
+            .unwrap_or_else(|| {
+                crate::services::download_client::translate_client_path(
+                    &raw,
+                    &torrent.save_path,
+                    local_download_path,
+                )
+            })
+        };
+        let local_save_path = crate::services::download_client::destination::to_local(
+            &torrent.save_path,
+            library_root_per_client
+                .get(&grab_client_id)
+                .map(String::as_str)
+                .unwrap_or(""),
+            &cfg.media_root,
+        )
+        .unwrap_or_else(|| {
+            crate::services::download_client::translate_client_path(
+                &torrent.save_path,
                 &torrent.save_path,
                 local_download_path,
             )
-        };
-        let local_save_path = crate::services::download_client::translate_client_path(
-            &torrent.save_path,
-            &torrent.save_path,
-            local_download_path,
-        );
+        });
         let _ = grabbed_torrents::stamp_client_content_path(&state.db, grab.id, &client_path).await;
 
-        match import_torrent(state, &cfg, grab, &torrent.hash, &local_save_path, &client).await {
+        let remote_base = library_root_per_client
+            .get(&grab_client_id)
+            .map(String::as_str)
+            .unwrap_or("");
+        let direct_location = match direct_destination::resolve(
+            &state.db,
+            &cfg,
+            grab.id,
+            grab.series_id,
+            remote_base,
+            &torrent.save_path,
+            &local_save_path,
+        )
+        .await
+        {
+            Ok(location) => location,
+            Err(error) => {
+                logger::error(
+                    &state.db,
+                    LogCategory::PostProcess,
+                    "Direct-library import refused",
+                    &error,
+                )
+                .await;
+                continue;
+            }
+        };
+        match import_torrent(
+            state,
+            &cfg,
+            grab,
+            &torrent.hash,
+            &local_save_path,
+            direct_location.as_ref(),
+            &client,
+        )
+        .await
+        {
             Ok(ImportOutcome::Imported) => {
                 any_imported = true;
                 let _ = grabbed_torrents::mark_imported(&state.db, grab.id).await;

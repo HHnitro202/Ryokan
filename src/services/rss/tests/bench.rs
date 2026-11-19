@@ -38,6 +38,7 @@ fn row(id: i64, title: &str) -> series::Series {
         season_year: Some(2020),
         end_year: Some(2020),
         folder_name: title.to_string(),
+        library_subdir: String::new(),
         monitor_mode: "all".to_string(),
         allow_upgrades: true,
         allow_pt_upgrades: false,

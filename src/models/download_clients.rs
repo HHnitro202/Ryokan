@@ -49,6 +49,11 @@ pub struct DownloadClientRow {
     /// the client for a look; the grab still fails and blocklists.
     /// Default on; set through `set_remove_failed`.
     pub remove_failed: bool,
+    /// Opt-in qBittorrent add-time library placement.
+    pub direct_to_library: bool,
+    /// General media root as seen by qBittorrent (explicit mount mapping),
+    /// with the category destination required to stay inside this base.
+    pub library_root: String,
 }
 
 /// Insert/update payload — `&str` rather than `String` so the
@@ -68,7 +73,7 @@ pub struct DownloadClientForm<'a> {
 
 const SELECT_COLS: &str = "id, name, kind, url, username, password, label, \
                            download_path, enabled, is_default, remove_completed, \
-                           remove_failed";
+                           remove_failed, direct_to_library, library_root";
 
 /// Wire-protocol family for a download-client kind. Mirrors
 /// `services::download_client::protocol_for_client_kind` — duplicated
@@ -107,6 +112,8 @@ fn map_row(r: sqlx::sqlite::SqliteRow) -> DownloadClientRow {
             .try_get::<i64, _>("is_default")
             .map(|v| v != 0)
             .unwrap_or(false),
+        direct_to_library: r.try_get::<bool, _>("direct_to_library").unwrap_or(false),
+        library_root: r.try_get("library_root").unwrap_or_default(),
         remove_completed: r
             .try_get::<i64, _>("remove_completed")
             .map(|v| v != 0)
@@ -447,6 +454,22 @@ async fn clear_other_defaults_in_protocol(
         q = q.bind(id);
     }
     q.execute(&mut **tx).await?;
+    Ok(())
+}
+
+/// Settings separate from legacy connection payloads; old callers stay opt-out.
+pub async fn set_library_destination(
+    db: &SqlitePool,
+    id: i64,
+    enabled: bool,
+    root: &str,
+) -> Result<(), sqlx::Error> {
+    sqlx::query("UPDATE download_clients SET direct_to_library = ?, library_root = ? WHERE id = ?")
+        .bind(enabled)
+        .bind(root)
+        .bind(id)
+        .execute(db)
+        .await?;
     Ok(())
 }
 

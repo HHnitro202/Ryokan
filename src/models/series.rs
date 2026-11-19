@@ -30,6 +30,9 @@ pub struct Series {
     /// auto-search log can say why nothing turns up.
     pub is_adult: bool,
     pub folder_name: String,
+    /// Category-relative library directory below General Media Root. The
+    /// series folder remains a single naming-template component.
+    pub library_subdir: String,
     pub monitor_mode: String,
     /// Phase 4 per-series upgrade toggle. When false the upgrade scanner
     /// skips this series entirely, even if a higher-quality release is
@@ -105,6 +108,14 @@ pub struct Series {
 }
 
 impl Series {
+    pub fn library_folder(&self) -> String {
+        if self.library_subdir.is_empty() {
+            self.folder_name.clone()
+        } else {
+            format!("{}/{}", self.library_subdir, self.folder_name)
+        }
+    }
+
     pub fn monitor_mode_enum(&self) -> MonitorMode {
         MonitorMode::from_str(&self.monitor_mode)
     }
@@ -160,6 +171,7 @@ fn map_series_row(row: sqlx::sqlite::SqliteRow) -> Series {
         season_year: row.try_get("season_year").ok().flatten(),
         end_year: row.try_get("end_year").ok().flatten(),
         folder_name: row.get("folder_name"),
+        library_subdir: row.try_get("library_subdir").unwrap_or_default(),
         monitor_mode: row
             .try_get("monitor_mode")
             .unwrap_or_else(|_| "future".to_string()),
@@ -201,7 +213,7 @@ fn map_series_row(row: sqlx::sqlite::SqliteRow) -> Series {
 /// Get all tracked series, ordered by most recently added.
 pub async fn get_all(db: &SqlitePool) -> Result<Vec<Series>, sqlx::Error> {
     let rows = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series ORDER BY added_at DESC",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series ORDER BY added_at DESC",
     )
     .fetch_all(db)
     .await?;
@@ -211,7 +223,7 @@ pub async fn get_all(db: &SqlitePool) -> Result<Vec<Series>, sqlx::Error> {
 
 pub async fn get_by_id(db: &SqlitePool, id: i64) -> Result<Option<Series>, sqlx::Error> {
     let row = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE id = ?",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE id = ?",
     )
     .bind(id)
     .fetch_optional(db)
@@ -225,7 +237,7 @@ pub async fn get_by_anilist_id(
     anilist_id: i64,
 ) -> Result<Option<Series>, sqlx::Error> {
     let row = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE anilist_id = ?",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE anilist_id = ?",
     )
     .bind(anilist_id)
     .fetch_optional(db)
@@ -248,7 +260,7 @@ pub async fn get_by_anilist_ids(
     }
     let placeholders = vec!["?"; anilist_ids.len()].join(",");
     let sql = format!(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE anilist_id IN ({placeholders})"
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE anilist_id IN ({placeholders})"
     );
     let mut q = sqlx::query(sqlx::AssertSqlSafe(sql));
     for id in anilist_ids {
@@ -279,7 +291,7 @@ pub async fn get_all_by_mal_id(db: &SqlitePool, mal_id: i64) -> Result<Vec<Serie
         return Ok(Vec::new());
     }
     let rows = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id = ? ORDER BY id",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id = ? ORDER BY id",
     )
     .bind(mal_id)
     .fetch_all(db)
@@ -318,7 +330,7 @@ pub async fn get_by_mal_id_for_entry(
         return Ok(None);
     }
     let row = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id = ? AND (? <= 0 OR anilist_id < 0) ORDER BY id LIMIT 1",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id = ? AND (? <= 0 OR anilist_id < 0) ORDER BY id LIMIT 1",
     )
     .bind(mal_id)
     .bind(anilist_id)
@@ -694,7 +706,7 @@ pub async fn other_series_in_folder(
     folder_name: &str,
 ) -> Result<Option<String>, sqlx::Error> {
     sqlx::query_scalar(
-        "SELECT title FROM series WHERE lower(folder_name) = lower(?) AND id != ? \
+        "SELECT title FROM series WHERE lower(CASE WHEN library_subdir = '' THEN folder_name ELSE library_subdir || '/' || folder_name END) = lower(?) AND id != ? \
          ORDER BY id LIMIT 1",
     )
     .bind(folder_name)
@@ -756,7 +768,7 @@ pub async fn refresh_core_metadata(
 
 pub async fn get_unreconciled_fallbacks(db: &SqlitePool) -> Result<Vec<Series>, sqlx::Error> {
     let rows = sqlx::query(
-        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id IS NOT NULL AND anilist_id < 0 ORDER BY added_at DESC",
+        "SELECT id, anilist_id, mal_id, title, title_romaji, title_english, title_native, cover_url, format, status, episodes, season_year, end_year, folder_name, library_subdir, monitor_mode, allow_upgrades, allow_pt_upgrades, custom_query_tokens, restrict_to_uploader, alternate_titles, cumulative_prior_episodes, cumulative_offset_source, cumulative_offset_season, episode_numbering, monitor_mode_manual_override, user_score, is_adult, added_at FROM series WHERE mal_id IS NOT NULL AND anilist_id < 0 ORDER BY added_at DESC",
     )
     .fetch_all(db)
     .await?;
@@ -1519,4 +1531,28 @@ mod absolute_offset_tests {
             );
         }
     }
+}
+
+/// Pin a series to its first direct-library category without moving files.
+pub async fn bind_library_subdir(db: &SqlitePool, id: i64, subdir: &str) -> Result<(), String> {
+    if !subdir.is_empty() && !crate::services::media::usable_library_folder(subdir) {
+        return Err("unsafe category-relative library directory".into());
+    }
+    sqlx::query("UPDATE series SET library_subdir = ? WHERE id = ? AND library_subdir = ''")
+        .bind(subdir)
+        .bind(id)
+        .execute(db)
+        .await
+        .map_err(|e| e.to_string())?;
+    let current: String = sqlx::query_scalar("SELECT library_subdir FROM series WHERE id = ?")
+        .bind(id)
+        .fetch_one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+    if current != subdir {
+        return Err(format!(
+            "series library is already in {current:?}; refusing to move it to {subdir:?}"
+        ));
+    }
+    Ok(())
 }

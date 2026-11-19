@@ -366,6 +366,15 @@ pub async fn grab_preview(
     // The row is reserved before the add, in one statement, so a second
     // click or tab during the up-to-10 s add joins this session instead
     // of making a second row (see `pending_grabs::reserve`).
+    let destination = download_client::destination::for_grab(
+        &state.db,
+        dispatch_client_id,
+        form.series_id,
+        form.release_metadata["title"].as_str().unwrap_or(""),
+        form.release_metadata["is_batch"].as_bool().unwrap_or(false),
+    )
+    .await
+    .map_err(|e| (StatusCode::BAD_REQUEST, e))?;
     let preview_id = generate_preview_id();
     let reserved = pending_grabs::reserve(
         &state.db,
@@ -391,7 +400,10 @@ pub async fn grab_preview(
             )),
         };
     }
-    let outcome = match client.add_torrent_paused(&form.url, &info_hash).await {
+    let outcome = match client
+        .add_torrent_paused_at(&form.url, &info_hash, destination.as_deref())
+        .await
+    {
         Ok(v) => v,
         Err(e) => {
             let _ = pending_grabs::delete(&state.db, &preview_id).await;

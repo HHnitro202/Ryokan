@@ -201,7 +201,7 @@ pub async fn delete_episode_file(
         None => return json_err(axum::http::StatusCode::INTERNAL_SERVER_ERROR, "No config"),
     };
 
-    let files = media::scan_series_folder(&cfg.media_root, &tracked.folder_name).await;
+    let files = media::scan_series_folder(&cfg.media_root, &tracked.library_folder()).await;
     // `holds`: a multi-episode file (issue #246) is the file for every
     // episode in its span, and deleting it clears all of them.
     // The own-season file first, so a merged folder's `S02E05` is not
@@ -217,7 +217,7 @@ pub async fn delete_episode_file(
             "Episode file not found on disk",
         ),
         Some(file) => {
-            let series_dir = std::path::Path::new(&cfg.media_root).join(&tracked.folder_name);
+            let series_dir = std::path::Path::new(&cfg.media_root).join(tracked.library_folder());
             let full_path = series_dir.join(&file.filename);
 
             // Canonicalize and verify the resolved path is still inside
@@ -1332,7 +1332,7 @@ pub async fn series_episodes_json(
     let db_id = db_series.as_ref().map(|s| s.id);
     let folder_name = db_series
         .as_ref()
-        .map(|s| s.folder_name.clone())
+        .map(|s| s.library_folder())
         .unwrap_or_default();
 
     let cfg = config::get_config(&state.db).await.ok().flatten();

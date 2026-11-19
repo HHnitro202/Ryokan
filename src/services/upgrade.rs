@@ -207,7 +207,7 @@ pub async fn run_once(state: &AppState) -> Result<UpgradeSummary, String> {
             continue;
         }
 
-        let disk_files = media::scan_series_folder(&cfg.media_root, &row.folder_name).await;
+        let disk_files = media::scan_series_folder(&cfg.media_root, &row.library_folder()).await;
         if disk_files.is_empty() {
             continue;
         }
@@ -463,8 +463,30 @@ pub async fn run_once(state: &AppState) -> Result<UpgradeSummary, String> {
                     }
                 };
 
+            let destination = match crate::services::download_client::destination::for_grab(
+                &state.db,
+                dispatch_client_id,
+                Some(row.id),
+                &result.title,
+                result.is_batch,
+            )
+            .await
+            {
+                Ok(destination) => destination,
+                Err(error) => {
+                    logger::error(
+                        &state.db,
+                        LogCategory::Grab,
+                        "Grab refused: direct-library configuration",
+                        &error,
+                    )
+                    .await;
+
+                    continue;
+                }
+            };
             match client
-                .add_torrent_returning_id(&url, &result.info_hash)
+                .add_torrent_at(&url, &result.info_hash, destination.as_deref())
                 .await
             {
                 Ok((_outcome, canonical_id)) => {

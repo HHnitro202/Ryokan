@@ -45,6 +45,7 @@ struct BatchClient {
     /// `delete` calls seen, so an upgrade test can assert the old
     /// torrent left the client (or, on a failed placement, did not).
     deleted: AtomicUsize,
+    delete_flags: std::sync::Mutex<Vec<bool>>,
 }
 
 impl BatchClient {
@@ -53,6 +54,7 @@ impl BatchClient {
             torrent,
             files,
             deleted: AtomicUsize::new(0),
+            delete_flags: std::sync::Mutex::new(Vec::new()),
         }
     }
 }
@@ -85,7 +87,8 @@ impl DownloadClient for BatchClient {
     async fn resume(&self, _hash: &str) -> Result<(), String> {
         Ok(())
     }
-    async fn delete(&self, _hash: &str, _delete_files: bool) -> Result<(), String> {
+    async fn delete(&self, _hash: &str, delete_files: bool) -> Result<(), String> {
+        self.delete_flags.lock().unwrap().push(delete_files);
         self.deleted.fetch_add(1, Ordering::SeqCst);
         Ok(())
     }
@@ -769,4 +772,307 @@ async fn live_upgrade_finds_the_old_file_named_under_another_template() {
     assert_eq!(grab_state(&db, grab_id).await, "imported");
 
     let _ = std::fs::remove_dir_all(&root);
+}
+
+#[tokio::test]
+async fn direct_library_import_preserves_original_file_and_tracks_episode() {
+    let _serializer = POST_PROC_TEST_SERIALIZER.lock().await;
+    for mode in ["hardlink", "copy", "move"] {
+        let root = tempfile::tempdir().unwrap();
+        let media = root.path().join("media");
+        let season = media.join("Show").join("S01");
+        std::fs::create_dir_all(season.join("Torrent")).unwrap();
+        let name = "[Group] Show - 17 [1080p].mkv";
+        let relative = format!("Torrent/{name}");
+        let video = season.join(&relative);
+        std::fs::write(&video, b"original episode bytes").unwrap();
+        if mode == "hardlink" {
+            let old = season.join("Torrent/Show - 17v1.mkv");
+            std::fs::write(&old, b"old episode").unwrap();
+            std::fs::write(old.with_extension("nfo"), "<episodedetails/>\n").unwrap();
+            crate::services::direct_library::annotate_nfo(&old.with_extension("nfo"), 1, 5, 5)
+                .await
+                .unwrap();
+        }
+        let db = in_memory_pool().await;
+        seed_config(&db, &media).await;
+        sqlx::query("UPDATE config SET season_folder_format = 'S{season.number:00}', post_processing_mode = ?, qbit_download_path = '/wrong-legacy-mount'")
+            .bind(mode).execute(&db).await.unwrap();
+        let series_id = seed_series(&db, 12900, "Show").await;
+        sqlx::query("UPDATE series SET cumulative_prior_episodes = 12, cumulative_offset_source = 'walk', episode_numbering = 'absolute' WHERE id = ?").bind(series_id).execute(&db).await.unwrap();
+        let hash = "direct-library-hash";
+        let grab_id = grabbed_torrents::record_grab(&db, hash, "Show - 17", series_id, &[5], false)
+            .await
+            .unwrap()
+            .unwrap();
+        // The remote library uses a different mount; normal download-path
+        // translation would replace the whole season folder and lose it.
+        let cid = crate::models::download_clients::insert(
+            &db,
+            crate::models::download_clients::DownloadClientForm {
+                name: "qbit",
+                kind: "qbittorrent",
+                url: "http://mock.invalid",
+                username: "",
+                password: "",
+                label: "anime",
+                download_path: "/wrong-download-mount",
+                enabled: true,
+                is_default: true,
+            },
+        )
+        .await
+        .unwrap();
+        crate::models::download_clients::set_library_destination(
+            &db,
+            cid,
+            false,
+            "/remote-library",
+        )
+        .await
+        .unwrap();
+        grabbed_torrents::set_download_client(&db, grab_id, Some(cid))
+            .await
+            .unwrap();
+        let client = Arc::new(BatchClient::new(
+            complete_torrent(hash, Path::new("/remote-library/Show/S01")),
+            vec![complete_file(&relative)],
+        ));
+        let state = build_test_app_state(db.clone(), Some(client.clone()));
+        post_processing::run_once(&state).await;
+        assert_eq!(grab_state(&db, grab_id).await, "imported", "{mode}");
+        assert_eq!(
+            collect_files(&media, "mkv"),
+            vec![name.to_string()],
+            "no renamed hardlink in {mode}"
+        );
+        assert_eq!(std::fs::read(&video).unwrap(), b"original episode bytes");
+        assert!(video.with_extension("nfo").is_file());
+        assert!(season.join("season.nfo").is_file());
+        assert!(media.join("Show/tvshow.nfo").is_file());
+        let tags = crate::models::episode_tags::get_for_series(&db, series_id)
+            .await
+            .unwrap();
+        assert_eq!(tags[&5].state, "completed");
+        let scanned =
+            crate::services::media::scan_series_folder(media.to_str().unwrap(), "Show").await;
+        assert_eq!(scanned.len(), 1);
+        assert_eq!(scanned[0].episode_number, 5);
+        assert_eq!(scanned[0].season_number, Some(1));
+        assert_eq!(
+            client.deleted.load(Ordering::SeqCst),
+            0,
+            "in-place move keeps seeding"
+        );
+        assert_eq!(
+            grabbed_torrents::get_imported_source_paths(&db, grab_id).await,
+            vec![video.to_str().unwrap().to_string()]
+        );
+    }
+}
+
+#[tokio::test]
+async fn parent_category_import_tracks_artwork_and_freezes_existing_locations() {
+    // Artwork paths are process environment based. Run this case in a child
+    // with a private temporary cache, never the developer's real artwork.
+    const CHILD: &str = "RYOKAN_PARENT_CATEGORY_TEST_CHILD";
+    if std::env::var_os(CHILD).is_none() {
+        let cache = tempfile::tempdir().unwrap();
+        let test_name = format!(
+            "{}::parent_category_import_tracks_artwork_and_freezes_existing_locations",
+            module_path!()
+                .strip_prefix("ryokan::")
+                .unwrap_or(module_path!())
+        );
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", test_name.as_str(), "--nocapture"])
+            .env(CHILD, "1")
+            .env("RYOKAN_MEDIA_CACHE_DIR", cache.path())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success() && String::from_utf8_lossy(&output.stdout).contains("1 passed"),
+            "{}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return;
+    }
+    let _serializer = POST_PROC_TEST_SERIALIZER.lock().await;
+    for category in ["ryokan-anime", "Shows", ""] {
+        for mode in ["hardlink", "copy", "move"] {
+            let root = tempfile::tempdir().unwrap();
+            let media = root.path().join("local-library");
+            let series_dir = media.join(category).join("Overgeared");
+            let season = series_dir.join("S01");
+            std::fs::create_dir_all(&season).unwrap();
+            let name = "[Yameii] Overgeared - S01E01 [1080p].mkv";
+            let video = season.join(name);
+            std::fs::write(&video, b"original video").unwrap();
+            let remote_base = "/remote/library";
+            let remote_save = Path::new(remote_base).join(category).join("Overgeared/S01");
+            let db = in_memory_pool().await;
+            seed_config(&db, &media).await;
+            sqlx::query("UPDATE config SET season_folder_format = 'S{season.number:00}', post_processing_mode = ?")
+                .bind(mode).execute(&db).await.unwrap();
+            let series_id = seed_series(&db, 77778, "Overgeared").await;
+            let grab_id = grabbed_torrents::record_grab(
+                &db,
+                "parent-hash",
+                "Overgeared - S01E01",
+                series_id,
+                &[1],
+                false,
+            )
+            .await
+            .unwrap()
+            .unwrap();
+            let cid = crate::models::download_clients::insert(
+                &db,
+                crate::models::download_clients::DownloadClientForm {
+                    name: "mock qbit",
+                    kind: "qbittorrent",
+                    url: "http://mock.invalid",
+                    username: "",
+                    password: "",
+                    label: "ryokan-anime",
+                    download_path: "/wrong-download-mount",
+                    enabled: true,
+                    is_default: true,
+                },
+            )
+            .await
+            .unwrap();
+            crate::models::download_clients::set_library_destination(&db, cid, true, remote_base)
+                .await
+                .unwrap();
+            grabbed_torrents::set_download_client(&db, grab_id, Some(cid))
+                .await
+                .unwrap();
+            let poster = crate::services::artwork::blob_path_in_cache("parent-poster.jpg").unwrap();
+            std::fs::create_dir_all(poster.parent().unwrap()).unwrap();
+            std::fs::write(&poster, b"poster bytes").unwrap();
+            crate::models::artwork_cache::upsert_blob(
+                &db,
+                "parent-poster",
+                poster.to_str().unwrap(),
+                "image/jpeg",
+                12,
+            )
+            .await
+            .unwrap();
+            crate::models::artwork_cache::upsert_ref(
+                &db,
+                crate::models::artwork_cache::RefUpsert {
+                    cache_key: &format!("series-{series_id}-cover"),
+                    parent_kind: "series",
+                    parent_id: Some(series_id),
+                    image_kind: "cover",
+                    source_url: "",
+                    blob_hash: "parent-poster",
+                    last_write: 0,
+                },
+            )
+            .await
+            .unwrap();
+            let client = Arc::new(BatchClient::new(
+                complete_torrent("parent-hash", &remote_save),
+                vec![complete_file(name)],
+            ));
+            let state = build_test_app_state(db.clone(), Some(client.clone()));
+            post_processing::run_once(&state).await;
+            assert_eq!(
+                grab_state(&db, grab_id).await,
+                "imported",
+                "category={category} mode={mode}"
+            );
+            let row = crate::models::series::get_by_id(&db, series_id)
+                .await
+                .unwrap()
+                .unwrap();
+            assert_eq!(row.library_subdir, category);
+            let files = crate::services::media::scan_series_folder(
+                media.to_str().unwrap(),
+                &row.library_folder(),
+            )
+            .await;
+            assert_eq!(files.len(), 1);
+            assert_eq!(files[0].episode_number, 1);
+            assert_eq!(
+                crate::models::episode_tags::get_for_series(&db, series_id)
+                    .await
+                    .unwrap()[&1]
+                    .state,
+                "completed"
+            );
+            assert!(video.with_extension("nfo").is_file());
+            assert!(series_dir.join("tvshow.nfo").is_file());
+            assert!(season.join("season.nfo").is_file());
+            assert_eq!(
+                std::fs::read(series_dir.join("poster.jpg")).unwrap(),
+                b"poster bytes"
+            );
+            assert_eq!(
+                std::fs::read(season.join("folder.jpg")).unwrap(),
+                b"poster bytes"
+            );
+            assert_eq!(collect_files(&media, "mkv"), vec![name.to_string()]);
+            if !category.is_empty() {
+                assert!(!media.join("Overgeared").exists());
+            }
+            assert_eq!(client.deleted.load(Ordering::SeqCst), 0);
+            let pinned: String = sqlx::query_scalar(
+                "SELECT direct_library_location FROM grabbed_torrents WHERE id = ?",
+            )
+            .bind(grab_id)
+            .fetch_one(&db)
+            .await
+            .unwrap();
+            assert!(!pinned.is_empty());
+            // An existing torrent retains its original save path. Changing
+            // settings must not reinterpret it using today's category/name.
+            sqlx::query("UPDATE download_clients SET label = 'changed-category'")
+                .execute(&db)
+                .await
+                .unwrap();
+            sqlx::query("UPDATE config SET season_folder_format = 'Changed {season.number:00}'")
+                .execute(&db)
+                .await
+                .unwrap();
+            grabbed_torrents::record_grab(
+                &db,
+                "parent-hash",
+                "Overgeared - S01E01",
+                series_id,
+                &[1],
+                false,
+            )
+            .await
+            .unwrap();
+            post_processing::run_once(&state).await;
+            assert_eq!(grab_state(&db, grab_id).await, "imported");
+            assert!(!series_dir.join("Changed 01").exists());
+            assert_eq!(std::fs::read(&video).unwrap(), b"original video");
+            assert_eq!(
+                sqlx::query_scalar::<_, String>(
+                    "SELECT direct_library_location FROM grabbed_torrents WHERE id = ?"
+                )
+                .bind(grab_id)
+                .fetch_one(&db)
+                .await
+                .unwrap(),
+                pinned
+            );
+            // Finished seeding removes only the torrent, never its library data.
+            let mut finished = complete_torrent("parent-hash", &remote_save);
+            finished.seeding_done = true;
+            let finished = Arc::new(BatchClient::new(finished, vec![complete_file(name)]));
+            let state = build_test_app_state(db.clone(), Some(finished.clone()));
+            post_processing::sweep_finished_seeds_now(&state)
+                .await
+                .unwrap();
+            assert_eq!(*finished.delete_flags.lock().unwrap(), vec![false]);
+            assert!(video.is_file());
+        }
+    }
 }

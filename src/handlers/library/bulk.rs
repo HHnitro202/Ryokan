@@ -332,14 +332,14 @@ async fn delete_one_series(
             .map_err(|e| DeleteFailure::kept(format!("lookup: {e}")))?;
         let folder_name = tracked
             .as_ref()
-            .map(|t| t.folder_name.as_str())
-            .unwrap_or("");
+            .map(|t| t.library_folder())
+            .unwrap_or_default();
         let series_title = tracked.as_ref().map(|t| t.title.as_str()).unwrap_or("");
 
         let report = super::cleanup::cleanup_series_files(
             state,
             series_id,
-            folder_name,
+            &folder_name,
             series_title,
             media_root,
             recycle_bin_path,

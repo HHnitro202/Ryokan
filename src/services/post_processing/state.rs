@@ -209,7 +209,8 @@ async fn scan_for_unclassified(
             if row.folder_name.is_empty() {
                 continue;
             }
-            let disk_files = media::scan_series_folder(&cfg.media_root, &row.folder_name).await;
+            let disk_files =
+                media::scan_series_folder(&cfg.media_root, &row.library_folder()).await;
             if disk_files.is_empty() {
                 continue;
             }
@@ -244,7 +245,7 @@ async fn scan_for_unclassified(
             let most_recent_grab_name: Option<&str> =
                 imported_grabs.first().map(|(n, _)| n.as_str());
 
-            let series_root = Path::new(&cfg.media_root).join(&row.folder_name);
+            let series_root = Path::new(&cfg.media_root).join(row.library_folder());
 
             for file in &disk_files {
                 report.files_scanned += 1;

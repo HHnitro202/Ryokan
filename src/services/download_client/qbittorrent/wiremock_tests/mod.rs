@@ -34,3 +34,7 @@ mod files;
 mod fixture;
 mod list;
 mod seed_rules;
+
+mod destination;
+
+mod category_destination;

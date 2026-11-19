@@ -8,6 +8,31 @@ use crate::services::download_client::DownloadClient;
 use crate::services::download_client::qbittorrent::QbitClient;
 
 #[tokio::test]
+async fn request_timeout_retains_classification_and_underlying_cause() {
+    let (server, mut client) = new_fixture().await;
+    // Skip authentication so only the delayed info request is under test.
+    *client.logged_in.lock().await = true;
+    client.http = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_millis(250))
+        .build()
+        .unwrap();
+    Mock::given(method("GET"))
+        .and(path("/api/v2/torrents/info"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(serde_json::json!([]))
+                .set_delay(std::time::Duration::from_secs(2)),
+        )
+        .mount(&server)
+        .await;
+    let error = client.list_scoped().await.unwrap_err();
+    assert!(error.contains("timeout=true"), "{error}");
+    assert!(error.contains("connect=false"), "{error}");
+    assert!(error.contains("timed out"), "{error}");
+    assert!(!error.contains("auth failed"), "{error}");
+}
+
+#[tokio::test]
 async fn test_returns_the_version_body() {
     let (server, client) = new_fixture().await;
     Mock::given(method("GET"))

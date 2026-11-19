@@ -238,10 +238,8 @@ pub async fn index(
         .as_ref()
         .map(|c| c.media_root.clone())
         .unwrap_or_default();
-    let folder_list: Vec<(i64, String)> = library
-        .iter()
-        .map(|s| (s.id, s.folder_name.clone()))
-        .collect();
+    let folder_list: Vec<(i64, String)> =
+        library.iter().map(|s| (s.id, s.library_folder())).collect();
     let (disk_map, aired_map, tag_rows) = tokio::join!(
         media::scan_series_folders_batch(&media_root, folder_list),
         local_metadata::aired_episode_counts(&state.db),
@@ -482,7 +480,7 @@ pub async fn series_detail(
     let db_id = db_series.as_ref().map(|s| s.id);
     let folder_name = db_series
         .as_ref()
-        .map(|s| s.folder_name.clone())
+        .map(|s| s.library_folder())
         .unwrap_or_default();
 
     // Ensure monitoring rows first — this writes to DB, and `build_episodes`

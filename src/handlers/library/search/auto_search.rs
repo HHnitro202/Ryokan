@@ -634,6 +634,15 @@ async fn run_auto_search_targets_with_upgrades(
                     skipped.push(format!("{}: no magnet/torrent URL", label));
                     continue;
                 }
+                let destination = crate::services::download_client::destination::for_grab(
+                    &state.db,
+                    dispatch_client_id,
+                    series_id,
+                    &result.title,
+                    result.is_batch,
+                )
+                .await
+                .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e))?;
                 // Selective-file path for multi-part / multi-season
                 // packs. `pick_wanted_file_indices` narrows by part
                 // number (Kizumonogatari II in a Monogatari megapack)
@@ -668,7 +677,12 @@ async fn run_auto_search_targets_with_upgrades(
                             auto_search::pick_wanted_file_indices(files, &detail_clone)
                         };
                         match qbit
-                            .add_torrent_with_file_filter(&url, &info_hash_clone, &mut pick)
+                            .add_torrent_filtered_at(
+                                &url,
+                                &info_hash_clone,
+                                destination.as_deref(),
+                                &mut pick,
+                            )
                             .await
                         {
                             // Selective branch echoes the precomputed
@@ -693,13 +707,13 @@ async fn run_auto_search_targets_with_upgrades(
                                     &e,
                                 )
                                 .await;
-                                qbit.add_torrent_returning_id(&url, &result.info_hash)
+                                qbit.add_torrent_at(&url, &result.info_hash, destination.as_deref())
                                     .await
                                     .map(|(_, hash)| (None, hash))
                             }
                         }
                     } else {
-                        qbit.add_torrent_returning_id(&url, &result.info_hash)
+                        qbit.add_torrent_at(&url, &result.info_hash, destination.as_deref())
                             .await
                             .map(|(_, hash)| (None, hash))
                     };
@@ -1123,7 +1137,7 @@ pub async fn auto_search_series(
     let tracked = maybe_hydrate_cumulative_offset(&state.db, tracked, &detail).await;
     let folder_name = tracked
         .as_ref()
-        .map(|s| s.folder_name.clone())
+        .map(|s| s.library_folder())
         .unwrap_or_default();
     let existing_files = media::scan_series_folder(&cfg.media_root, &folder_name).await;
     let existing_eps: Vec<i32> = existing_files.iter().flat_map(|f| f.episodes()).collect();
@@ -1377,6 +1391,7 @@ mod upgrade_candidate_tests {
             season_year: None,
             end_year: None,
             folder_name: "Show".to_string(),
+            library_subdir: String::new(),
             monitor_mode: "all".to_string(),
             allow_upgrades,
             allow_pt_upgrades: false,

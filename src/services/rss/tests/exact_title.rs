@@ -27,6 +27,7 @@ fn series_named_with_id(id: i64, title: &str, alternate_titles: &str) -> series:
         season_year: None,
         end_year: None,
         folder_name: title.to_string(),
+        library_subdir: String::new(),
         monitor_mode: "all".to_string(),
         allow_upgrades: true,
         allow_pt_upgrades: false,

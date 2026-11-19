@@ -72,3 +72,7 @@ pub mod source_groups;
 pub mod source_temporal;
 
 pub mod user_score;
+
+pub mod library_destination;
+
+pub mod direct_library;

@@ -82,6 +82,22 @@ Give Ryokan its own category or label, such as `ryokan-anime`. Ryokan only looks
 
     If downloads disappear from Ryokan but are still running in SABnzbd, see [Troubleshooting](troubleshooting.md#sab-downloads-disappear-from-ryokan-but-still-download-in-sab).
 
+## Direct library downloads with qBittorrent
+
+This is off by default. In **Settings → Download Clients**, edit the qBittorrent row and enable **Download directly into anime / season folders**. Enable post-processing in General and set **Library root (as qBittorrent sees it)** to the absolute Unix path for that same library in qBittorrent. Both apps need access to those files.
+
+The category directory has one authoritative source: qBittorrent's configuration, read when a new direct grab is added. An explicit category save path is used as configured; a relative category save path is resolved against qBittorrent's default save directory. An empty category save path produces a category folder only when Automatic Torrent Management or **Use Category paths in Manual Mode** selects that behavior. Ryokan then appends only its existing series folder and General's season folder. It sends one complete absolute `savepath` with `autoTMM=false`, keeping the category label and leaving global qBittorrent settings unchanged.
+
+**Library root** maps General Media Root's shared **base directory** to the corresponding base visible to qBittorrent. For example, set both roots to `/media/anime` and configure the qBittorrent category destination as `/media/anime/ryokan-anime`. An Overgeared grab then uses `/media/anime/ryokan-anime/Overgeared/Season 01`. A custom category destination `/media/anime/Shows` instead produces `/media/anime/Shows/Overgeared/Season 01`; Ryokan never adds the category label to an explicit path.
+
+Different mount prefixes work the same way: General `/mnt/library` and Library root `/media/anime` declare the same shared base. A remote category destination `/media/anime/ryokan-anime` maps locally to `/mnt/library/ryokan-anime`. The relative category structure is preserved. A category destination equal to the mapped base also works, including configurations where both bases already include `ryokan-anime`; the category directory is not added twice. This mapping is separate from Download path. Paths alone cannot prove that containers mount the same host directory; verify that correspondence in your mounts.
+
+Unsafe paths, category destinations outside the mapped base, and ambiguous category settings refuse an eligible grab with an actionable configuration error. Configure an explicit category save path and a base containing it when qBittorrent cannot report a reliable destination. External category-root mappings are not supported. Transport, authentication and malformed configuration responses remain errors.
+
+Normal grabs, the interactive picker, and selective grabs use this same resolution. Existing hashes are checked before category configuration is read, so a repeated grab does not relocate or change an existing torrent. Multi-season packs, unnumbered packs and uncertain series matches keep their usual download behavior; a numbered batch qualifies only when its title matches the series exactly and its episode range fits the known series count.
+
+Files already in the destination season folder keep their original torrent filenames. Post-processing still records episodes, writes NFOs and artwork, and handles upgrades. The episode NFO preserves Ryokan's resolved numbering for library scans when a filename uses absolute episode numbers. Client cleanup preserves library data when removing these torrents, and Move mode lets them continue seeding. Post-processing records each direct torrent's actual save path and base mapping, and stores the category-relative series location for scans and sidecars. Later category changes do not reinterpret existing downloads. Changing a frozen mapping or a series' storage directory requires an explicit migration; Ryokan refuses conflicting imports without moving files. Keep the library-root mapping while earlier direct downloads are still in the client, even if you turn off the switch for new grabs.
+
 ## If "Test connection" fails
 
 - **Cannot connect**: a URL with a service name only works inside the same compose file. Try the client's IP address and published port.
@@ -112,7 +128,7 @@ A torrent with seeding rules is left in the client when you delete or upgrade it
 
 Each client has two boxes, both on by default:
 
-- **Remove completed downloads**: once a download has been imported and the client reports it has finished seeding, Ryokan removes it from the client along with its files. Your library keeps its own copy. Usenet downloads, and torrents imported in Move mode, are removed straight after import.
+- **Remove completed downloads**: once a download has been imported and the client reports it has finished seeding, Ryokan removes it from the client along with its files. Your library keeps its own copy. Usenet downloads, and torrents imported in Move mode, are removed straight after import. In-place direct-library torrents keep seeding, and removing them from the client preserves their library files.
 - **Remove failed downloads**: when the client reports a download as failed, Ryokan removes it before searching for a replacement. With the box off, the failed download stays in the client. The release is blocklisted either way.
 
 Downloads that were only partly imported, and torrents you paused yourself, are never removed.

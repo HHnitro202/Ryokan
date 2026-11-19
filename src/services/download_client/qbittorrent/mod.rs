@@ -46,6 +46,9 @@ use super::{
 /// Coalescing at 2s means a burst of N concurrent polls collapses to
 /// a single upstream fetch while the UI still refreshes on its own
 /// 5s cadence — the user-visible staleness ceiling is 2s, not 5s.
+mod add;
+mod category_destination;
+
 const TORRENTS_CACHE_TTL: Duration = Duration::from_secs(2);
 
 /// Stamped cache slot for the `/torrents/info` result. Held under a
@@ -61,6 +64,7 @@ pub struct QbitClient {
     user: String,
     pass: String,
     category: String,
+    library_root: String,
     http: Client,
     logged_in: Arc<Mutex<bool>>,
     torrents_cache: Arc<Mutex<TorrentsCacheSlot>>,
@@ -171,12 +175,20 @@ impl QbitClient {
             user: user.to_string(),
             pass: pass.to_string(),
             category: category.to_string(),
+            library_root: String::new(),
             http,
             logged_in: Arc::new(Mutex::new(false)),
             torrents_cache: Arc::new(Mutex::new(None)),
             torrents_fetch_in_flight: Arc::new(AtomicBool::new(false)),
             torrents_fetch_done: Arc::new(Notify::new()),
         }
+    }
+
+    /// Retain the mapping even when new direct grabs are disabled, so
+    /// removing an older torrent can never delete its library files.
+    pub fn with_library_root(mut self, root: &str) -> Self {
+        self.library_root = root.to_string();
+        self
     }
 
     async fn invalidate_torrents_cache(&self) {
@@ -190,7 +202,7 @@ impl QbitClient {
             .form(&[("username", &self.user), ("password", &self.pass)])
             .send()
             .await
-            .map_err(|e| format!("qbit login failed: {}", e))?;
+            .map_err(|e| transport_error("qbit login", e))?;
 
         // qBittorrent answers a login with 200 either way (`Ok.` or
         // `Fails.`). Anything else is not a login: 403 is its ban on an
@@ -233,7 +245,7 @@ impl QbitClient {
             .get(&url)
             .send()
             .await
-            .map_err(|e| format!("request failed: {}", e))?;
+            .map_err(|e| transport_error("request", e))?;
 
         if resp.status() == StatusCode::FORBIDDEN {
             *self.logged_in.lock().await = false;
@@ -242,7 +254,7 @@ impl QbitClient {
                 .get(&url)
                 .send()
                 .await
-                .map_err(|e| format!("retry failed: {}", e))
+                .map_err(|e| transport_error("retry", e))
         } else {
             Ok(resp)
         }
@@ -262,7 +274,7 @@ impl QbitClient {
             .form(form)
             .send()
             .await
-            .map_err(|e| format!("request failed: {}", e))?;
+            .map_err(|e| transport_error("request", e))?;
 
         if resp.status() == StatusCode::FORBIDDEN {
             *self.logged_in.lock().await = false;
@@ -272,7 +284,7 @@ impl QbitClient {
                 .form(form)
                 .send()
                 .await
-                .map_err(|e| format!("retry failed: {}", e))
+                .map_err(|e| transport_error("retry", e))
         } else {
             Ok(resp)
         }
@@ -347,15 +359,31 @@ impl QbitClient {
     /// Whether qBittorrent holds `info_hash` (any category). A lookup
     /// that fails reads as "no", leaving the add to answer for itself.
     async fn has_torrent(&self, info_hash: &str) -> bool {
-        let hash_lc = info_hash.to_ascii_lowercase();
-        let lookup = format!("/api/v2/torrents/info?hashes={hash_lc}");
-        match self.do_get(&lookup).await {
-            Ok(resp) if resp.status().is_success() => resp
-                .json::<Vec<QbitRawTorrent>>()
-                .await
-                .is_ok_and(|raw| raw.iter().any(|t| t.hash.eq_ignore_ascii_case(&hash_lc))),
-            _ => false,
+        self.lookup_torrent(info_hash).await.unwrap_or(false)
+    }
+
+    async fn lookup_torrent(&self, info_hash: &str) -> Result<bool, String> {
+        Ok(self
+            .torrent_info(info_hash)
+            .await?
+            .iter()
+            .any(|t| t.hash.eq_ignore_ascii_case(info_hash)))
+    }
+
+    async fn torrent_info(&self, info_hash: &str) -> Result<Vec<QbitRawTorrent>, String> {
+        super::check_info_hash(info_hash)?;
+        let resp = self
+            .do_get(&format!(
+                "/api/v2/torrents/info?hashes={}",
+                info_hash.to_ascii_lowercase()
+            ))
+            .await?;
+        if !resp.status().is_success() {
+            return Err("qbit torrent lookup failed".into());
         }
+        resp.json()
+            .await
+            .map_err(|e| format!("qbit torrent lookup: {e}"))
     }
 
     /// Raw `/torrents/files?hash=X` fetch. qBit 5.x returns **404
@@ -431,61 +459,7 @@ impl DownloadClient for QbitClient {
     }
 
     async fn add_torrent(&self, url: &str, info_hash: &str) -> Result<AddOutcome, String> {
-        super::check_release_url(url)?;
-        if !info_hash.is_empty() {
-            super::check_info_hash(info_hash)?;
-            // qBittorrent 4.x answers `Ok.` to a duplicate add as well, so
-            // the add's own answer can't say whether this call created the
-            // torrent. The file picker took that `Ok.` to mean "ours" and
-            // its cancel deleted the torrent with its data, which could be
-            // another grab's download. Ask first.
-            if self.has_torrent(info_hash).await {
-                return Ok(AddOutcome::AlreadyPresent);
-            }
-        }
-        let form = [("urls", url), ("category", &self.category)];
-        let resp = self.do_post_form("/api/v2/torrents/add", &form).await?;
-
-        let status = resp.status();
-        let body = resp.text().await.unwrap_or_default();
-
-        if !status.is_success() {
-            return Err(format!("qbit add failed (HTTP {status}): {body}"));
-        }
-        // qBit returns 200 OK with body "Fails." in two different
-        // scenarios that are indistinguishable from the response
-        // alone: a genuinely-malformed magnet (bad hash length, bad
-        // URN scheme) and — the case live-verified against v5.1.4
-        // during the Phase 1 download-client smoke work — a *duplicate*
-        // magnet whose info-hash is already in the session. Older
-        // builds are silent about duplicates (the "always 200 Ok."
-        // behavior the module-header comment describes); v5.x changed
-        // that, and the auto-search path lit up with
-        // `qBit returned 'Fails.'` errors on every re-grab of a
-        // torrent already in the client (e.g. RSS re-emitting an item
-        // whose grab row was lost on a crash, or a manual grab +
-        // upgrade-sweep hitting the same release).
-        //
-        // We can disambiguate after the fact: look the info-hash up
-        // via `/torrents/info?hashes=`. Present → duplicate, report
-        // `AlreadyPresent` and let the caller record the grab
-        // normally. Missing → the magnet really was rejected; surface
-        // the error so auto-search backs off.
-        if body.trim() == "Fails." {
-            if !info_hash.is_empty() && self.has_torrent(info_hash).await {
-                return Ok(AddOutcome::AlreadyPresent);
-            }
-            return Err(format!(
-                "qbit add rejected url={}: qBit returned 'Fails.'",
-                crate::services::sanitize::redact_url(url)
-            ));
-        }
-        self.invalidate_torrents_cache().await;
-        // On the 200 "Ok." path qBit returns the same body whether the
-        // hash was new or (on older builds) a silent duplicate. We
-        // report `Added` either way; the `AlreadyPresent` path only
-        // fires for the v5.x "Fails." duplicate disambiguation above.
-        Ok(AddOutcome::Added)
+        self.add_at(url, info_hash, None).await
     }
 
     /// Add a torrent in a state where no file data downloads, for the
@@ -513,54 +487,7 @@ impl DownloadClient for QbitClient {
     /// timeout, grab with defaults" — matching the plan doc's
     /// decision #1 two-button dialog.
     async fn add_torrent_paused(&self, url: &str, info_hash: &str) -> Result<AddOutcome, String> {
-        super::check_release_url(url)?;
-        if !info_hash.is_empty() {
-            super::check_info_hash(info_hash)?;
-        }
-        if info_hash.is_empty() {
-            return Err("qBit paused add requires a pre-computed info hash".into());
-        }
-        let hash_lc = info_hash.to_ascii_lowercase();
-
-        let outcome = self.add_torrent(url, &hash_lc).await?;
-
-        // Don't touch a pre-existing torrent's priorities. The user
-        // may have partial-downloaded this release from an earlier
-        // grab with careful file-selection; mark-all-skip would wipe
-        // that and force them to re-pick. Handler is responsible for
-        // surfacing the existing state to the modal instead (same-
-        // hash dedup flow, plan decision #6).
-        if outcome == AddOutcome::AlreadyPresent {
-            return Ok(outcome);
-        }
-
-        // Explicit resume so a fresh add that landed in stopped state
-        // starts flowing metadata. Matches the pattern in
-        // `add_torrent_with_file_filter`.
-        let _ = self.resume(&hash_lc).await;
-
-        match self
-            .wait_for_metadata(&hash_lc, Duration::from_secs(10))
-            .await
-        {
-            Ok(files) => {
-                // Mark every file skipped so the torrent idles until
-                // the caller flips selections back via set_file_wanted.
-                let all_ids: Vec<usize> = (0..files.len()).collect();
-                if !all_ids.is_empty() {
-                    self.set_file_priority(&hash_lc, &all_ids, 0).await?;
-                }
-            }
-            Err(_) => {
-                // Metadata timeout — leave the torrent running at
-                // default priorities. Handler will see an empty /
-                // not-yet-populated file list on the GET preview
-                // endpoint and surface the timeout dialog to the
-                // user. No data loss, just a UX prompt.
-            }
-        }
-
-        Ok(outcome)
+        self.paused_at(url, info_hash, None).await
     }
 
     /// Add a torrent, wait for metadata, invoke `pick`, and mark the
@@ -593,54 +520,36 @@ impl DownloadClient for QbitClient {
         info_hash: &str,
         pick: &mut (dyn for<'a> FnMut(&'a [String]) -> Option<Vec<usize>> + Send),
     ) -> Result<SelectiveOutcome, String> {
-        super::check_release_url(url)?;
-        if info_hash.is_empty() {
-            return Err("selective download requires a known info hash".into());
-        }
-        let hash_lc = info_hash.to_ascii_lowercase();
+        self.filtered_at(url, info_hash, None, pick).await
+    }
 
-        self.add_torrent(url, &hash_lc).await?;
-
-        // If qBit already had this hash sitting in stopped state,
-        // the add above is a dedup no-op and the torrent is still
-        // stopped. Explicitly start it so metadata flows.
-        self.resume(&hash_lc).await?;
-
-        let files = match self
-            .wait_for_metadata(&hash_lc, Duration::from_secs(10))
-            .await
-        {
-            Ok(files) => files,
-            Err(_) => return Ok(SelectiveOutcome::FullDownload),
-        };
-
-        let names: Vec<String> = files.iter().map(|f| f.name.clone()).collect();
-        let keep = pick(&names);
-
-        let new_keep_ids = match keep {
-            Some(ids) if !ids.is_empty() && ids.len() < files.len() => ids,
-            _ => return Ok(SelectiveOutcome::FullDownload),
-        };
-
-        let already_narrowed = files.iter().any(|f| f.priority == 0);
-
-        if already_narrowed {
-            let to_bump: Vec<usize> = new_keep_ids
-                .iter()
-                .copied()
-                .filter(|&i| files.get(i).map(|f| f.priority == 0).unwrap_or(false))
-                .collect();
-            if !to_bump.is_empty() {
-                self.set_file_priority(&hash_lc, &to_bump, 1).await?;
-            }
-        } else {
-            let skip_ids: Vec<usize> = (0..files.len())
-                .filter(|i| !new_keep_ids.contains(i))
-                .collect();
-            self.set_file_priority(&hash_lc, &skip_ids, 0).await?;
-            self.set_file_priority(&hash_lc, &new_keep_ids, 1).await?;
-        }
-        Ok(SelectiveOutcome::Filtered(new_keep_ids))
+    async fn add_torrent_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        destination: Option<&str>,
+    ) -> Result<(AddOutcome, String), String> {
+        Ok((
+            self.add_at(url, info_hash, destination).await?,
+            info_hash.to_string(),
+        ))
+    }
+    async fn add_torrent_paused_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        destination: Option<&str>,
+    ) -> Result<AddOutcome, String> {
+        self.paused_at(url, info_hash, destination).await
+    }
+    async fn add_torrent_filtered_at(
+        &self,
+        url: &str,
+        info_hash: &str,
+        destination: Option<&str>,
+        pick: &mut (dyn for<'a> FnMut(&'a [String]) -> Option<Vec<usize>> + Send),
+    ) -> Result<SelectiveOutcome, String> {
+        self.filtered_at(url, info_hash, destination, pick).await
     }
 
     async fn list_scoped(&self) -> Result<Vec<DownloadItem>, String> {
@@ -769,6 +678,24 @@ impl DownloadClient for QbitClient {
             return Ok(());
         }
         super::check_info_hash(info_hash)?;
+        // Library downloads share their only copy with the torrent. All
+        // delete paths (cancel, failed download, upgrade and seed cleanup)
+        // must remove just the torrent when its data is in the library.
+        let delete_files = if delete_files && !self.library_root.is_empty() {
+            match self.torrent_info(info_hash).await {
+                Ok(items) => !items.iter().any(|t| {
+                    super::destination::to_local(
+                        &t.save_path,
+                        &self.library_root,
+                        &self.library_root,
+                    )
+                    .is_some()
+                }),
+                Err(_) => false,
+            }
+        } else {
+            delete_files
+        };
         let delete_str = if delete_files { "true" } else { "false" };
         let form = [("hashes", info_hash), ("deleteFiles", delete_str)];
         let resp = self.do_post_form("/api/v2/torrents/delete", &form).await?;
@@ -847,6 +774,30 @@ impl DownloadClient for QbitClient {
         }
         Ok(())
     }
+}
+
+/// Display alone omits reqwest's underlying timeout/TCP errors. Keep their
+/// causes and classification without logging URL credentials or query data.
+fn transport_error(operation: &str, error: reqwest::Error) -> String {
+    let origin = error
+        .url()
+        .map(|url| crate::services::sanitize::redact_url(url.as_str()))
+        .unwrap_or_default();
+    let mut message = format!(
+        "{operation} failed (timeout={}, connect={}, request={}) {origin}: ",
+        error.is_timeout(),
+        error.is_connect(),
+        error.is_request(),
+    );
+    let error = error.without_url();
+    message.push_str(&error.to_string());
+    let mut cause = std::error::Error::source(&error);
+    while let Some(source) = cause {
+        message.push_str(": ");
+        message.push_str(&source.to_string());
+        cause = source.source();
+    }
+    message
 }
 
 fn to_download_item(raw: QbitRawTorrent) -> DownloadItem {

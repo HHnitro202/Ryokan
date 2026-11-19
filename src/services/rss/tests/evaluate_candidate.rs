@@ -24,6 +24,7 @@ fn series(status: &str) -> series::Series {
         season_year: None,
         end_year: None,
         folder_name: "Test Series".to_string(),
+        library_subdir: String::new(),
         monitor_mode: "all".to_string(),
         allow_upgrades: true,
         allow_pt_upgrades: false,

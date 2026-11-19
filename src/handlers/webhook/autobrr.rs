@@ -464,8 +464,20 @@ pub async fn webhook_autobrr(
     // hands back from `mode=addurl`. Either way, persist the
     // returned value so post-processing's `list_scoped` matching
     // works for both protocols.
+    let destination = match crate::services::download_client::destination::for_grab(
+        &state.db,
+        dispatch_client_id,
+        Some(series.id),
+        &payload.torrent_name,
+        false,
+    )
+    .await
+    {
+        Ok(destination) => destination,
+        Err(error) => return err_json(StatusCode::BAD_REQUEST, error),
+    };
     let (add_outcome, canonical_id) = match client
-        .add_torrent_returning_id(&download_url, &info_hash_lc)
+        .add_torrent_at(&download_url, &info_hash_lc, destination.as_deref())
         .await
     {
         Ok(t) => t,

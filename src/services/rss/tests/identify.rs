@@ -22,6 +22,7 @@ fn series(id: i64, anilist_id: i64, title: &str, episodes: i32, year: i32) -> se
         season_year: Some(year),
         end_year: Some(year),
         folder_name: title.to_string(),
+        library_subdir: String::new(),
         monitor_mode: "all".to_string(),
         allow_upgrades: true,
         allow_pt_upgrades: false,

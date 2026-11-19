@@ -3136,6 +3136,7 @@ mod tests {
             season_year: None,
             end_year: None,
             folder_name: String::new(),
+            library_subdir: String::new(),
             monitor_mode: "future".to_string(),
             allow_upgrades: true,
             allow_pt_upgrades: false,

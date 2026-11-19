@@ -590,7 +590,16 @@ pub async fn search_batch_releases(
                 )
                 .await;
             }
-            qbit.add_torrent(&url, &result.info_hash)
+            let destination = crate::services::download_client::destination::for_grab(
+                &state.db,
+                dispatch_client_id,
+                series_id_for_grab,
+                &result.title,
+                result.is_batch,
+            )
+            .await
+            .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e))?;
+            qbit.add_torrent_at(&url, &result.info_hash, destination.as_deref())
                 .await
                 .map_err(|e| {
                     if let Some(h) = &progress_handle {

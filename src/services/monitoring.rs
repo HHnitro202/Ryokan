@@ -62,7 +62,7 @@ pub async fn recompute_series_monitoring(
         .flatten()
         .unwrap_or_default();
 
-    let disk_files = media::scan_series_folder(&cfg.media_root, &row.folder_name).await;
+    let disk_files = media::scan_series_folder(&cfg.media_root, &row.library_folder()).await;
     let existing_eps: HashSet<i32> = disk_files.iter().flat_map(|f| f.episodes()).collect();
     let episode_info = load_episode_info(db, &row).await;
     let monitored_eps =
@@ -323,6 +323,7 @@ mod tests {
             season_year: None,
             end_year: None,
             folder_name: String::new(),
+            library_subdir: String::new(),
             monitor_mode: "all".to_string(),
             allow_upgrades: true,
             allow_pt_upgrades: false,

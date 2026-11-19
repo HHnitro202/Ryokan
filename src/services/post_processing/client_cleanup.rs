@@ -126,7 +126,7 @@ pub(super) async fn remove_after_import(
     }
     let reason = if client.protocol() == "usenet" {
         RemovalReason::UsenetImported
-    } else if cfg.post_processing_mode == "move" {
+    } else if cfg.post_processing_mode == "move" && !has_library_sources(state, cfg, grab).await {
         RemovalReason::MoveModeImported
     } else {
         return;
@@ -326,7 +326,8 @@ async fn remove_from_client(
     client: &Arc<dyn DownloadClient>,
     reason: RemovalReason,
 ) -> bool {
-    if let Err(e) = client.delete(&grab.hash, true).await {
+    let delete_files = !has_library_sources(state, cfg, grab).await;
+    if let Err(e) = client.delete(&grab.hash, delete_files).await {
         logger::warn(
             &state.db,
             LogCategory::PostProcess,
@@ -340,7 +341,7 @@ async fn remove_from_client(
         return false;
     }
     let mut detail = format!(
-        "{}; hash={}; the client's copy of the files was deleted",
+        "{}; hash={}; delete_files={delete_files}",
         reason.describe(),
         grab.hash
     );
@@ -370,6 +371,34 @@ async fn remove_from_client(
     )
     .await;
     true
+}
+
+/// Source paths are stamped before import completes. Preserve any torrent
+/// whose source is also a library file, even after its client settings change.
+async fn has_library_sources(
+    state: &AppState,
+    cfg: &config::Config,
+    grab: &grabbed_torrents::GrabbedTorrent,
+) -> bool {
+    let pinned: bool = sqlx::query_scalar(
+        "SELECT direct_library_location != '' FROM grabbed_torrents WHERE id = ?",
+    )
+    .bind(grab.id)
+    .fetch_optional(&state.db)
+    .await
+    .ok()
+    .flatten()
+    .unwrap_or(true);
+    if pinned {
+        return true;
+    }
+    if cfg.media_root.is_empty() {
+        return false;
+    }
+    let sources = grabbed_torrents::get_imported_source_paths(&state.db, grab.id).await;
+    sources
+        .iter()
+        .any(|source| Path::new(source).starts_with(&cfg.media_root))
 }
 
 /// Drop any stamped path that sits under the media root: a source that

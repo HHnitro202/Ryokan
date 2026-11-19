@@ -25,6 +25,36 @@ fn write_src(dir: &TempDir, name: &str, body: &[u8]) -> PathBuf {
     path
 }
 
+#[tokio::test]
+async fn season_directory_error_includes_rejected_path_and_os_cause() {
+    let dir = TempDir::new().unwrap();
+    let file = write_src(&dir, "not-a-directory", b"unchanged");
+    let target = file.join("Overgeared/Season 01");
+    let error = crate::services::post_processing::ensure_season_dir(&target)
+        .await
+        .unwrap_err();
+    assert!(error.contains(&format!("{target:?}")), "{error}");
+    assert!(error.contains("NotADirectory"), "{error}");
+    assert!(error.contains("raw_os_error=Some("), "{error}");
+    assert_eq!(fs::read(&file).unwrap(), b"unchanged");
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn existing_season_directory_needs_no_parent_write_permission() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = TempDir::new().unwrap();
+    let target = dir.path().join("Overgeared/Season 01");
+    fs::create_dir_all(&target).unwrap();
+    let parent = target.parent().unwrap();
+    let original = fs::metadata(parent).unwrap().permissions();
+    fs::set_permissions(parent, fs::Permissions::from_mode(0o555)).unwrap();
+    let result = crate::services::post_processing::ensure_season_dir(&target).await;
+    fs::set_permissions(parent, original).unwrap();
+    assert!(result.is_ok(), "{result:?}");
+}
+
 // ─── Hardlink mode ─────────────────────────────────────────────────
 
 #[tokio::test]

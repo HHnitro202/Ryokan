@@ -498,6 +498,7 @@ mod tests {
             season_year: Some(2024),
             end_year: Some(2024),
             folder_name: "english-title".to_string(),
+            library_subdir: String::new(),
             monitor_mode: "future".to_string(),
             allow_upgrades: true,
             allow_pt_upgrades: false,

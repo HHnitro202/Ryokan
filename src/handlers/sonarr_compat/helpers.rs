@@ -274,7 +274,7 @@ pub(super) async fn build_sonarr_series_from_search(
     let is_in_library = db_series.is_some();
     let internal_id = db_series.map(|s| s.id).unwrap_or(0);
 
-    let folder_name = db_series.map(|s| s.folder_name.clone()).unwrap_or_else(|| {
+    let folder_name = db_series.map(|s| s.library_folder()).unwrap_or_else(|| {
         crate::services::naming::series_folder(
             &cfg.series_folder_format,
             &cfg.title_language,
@@ -380,16 +380,16 @@ pub(super) async fn build_sonarr_series_from_tracked(
     cfg: &config::Config,
 ) -> SonarrSeries {
     let total_eps = s.episodes.unwrap_or(0).max(0);
-    let disk_files = media::scan_series_folder(&cfg.media_root, &s.folder_name).await;
+    let disk_files = media::scan_series_folder(&cfg.media_root, &s.library_folder()).await;
     // Episodes, not files: a multi-episode file counts for each
     // episode it holds (issue #246).
     let on_disk: i32 = disk_files.iter().map(|f| f.span().count()).sum();
     let monitored = s.monitor_mode_enum() != monitoring::MonitorMode::None;
 
     let path = if cfg.media_root.is_empty() {
-        format!("/media/{}", s.folder_name)
+        format!("/media/{}", s.library_folder())
     } else {
-        format!("{}/{}", cfg.media_root, s.folder_name)
+        format!("{}/{}", cfg.media_root, s.library_folder())
     };
 
     let title = if !s.title.is_empty() {

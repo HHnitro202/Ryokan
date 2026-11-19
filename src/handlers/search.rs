@@ -342,8 +342,43 @@ pub async fn grab_release(
     } else {
         crate::services::nyaa::extract_hash(&form.url)
     };
+    let direct_enabled = crate::models::download_clients::get_by_id(&state.db, dispatch_client_id)
+        .await
+        .ok()
+        .flatten()
+        .is_some_and(|c| c.kind == "qbittorrent" && c.direct_to_library);
+    let prepared_link = if direct_enabled && !info_hash.is_empty() {
+        Some(
+            crate::services::library_link::resolve_or_add_series_for_grab(
+                &state,
+                form.title.as_deref().unwrap_or(""),
+                form.is_batch.unwrap_or(false),
+            )
+            .await,
+        )
+    } else {
+        None
+    };
+    let destination_series = prepared_link.as_ref().and_then(|outcome| {
+        use crate::services::library_link::LibraryLinkOutcome::*;
+        match outcome {
+            LinkedExisting { series, .. }
+            | LinkedByAnilist { series, .. }
+            | AutoAdded { series, .. } => Some(series.id),
+            _ => None,
+        }
+    });
+    let destination = crate::services::download_client::destination::for_grab(
+        &state.db,
+        dispatch_client_id,
+        destination_series,
+        form.title.as_deref().unwrap_or(""),
+        form.is_batch.unwrap_or(false),
+    )
+    .await
+    .map_err(|e| (axum::http::StatusCode::BAD_REQUEST, e))?;
     let (_outcome, canonical_id) = client
-        .add_torrent_returning_id(&form.url, &info_hash)
+        .add_torrent_at(&form.url, &info_hash, destination.as_deref())
         .await
         .map_err(|e| {
             let db = state.db.clone();
@@ -387,9 +422,15 @@ pub async fn grab_release(
     let hash = canonical_id.clone();
     let mut link_outcome: Option<crate::services::library_link::LibraryLinkOutcome> = None;
     if !title.is_empty() && !hash.is_empty() {
-        let outcome =
-            crate::services::library_link::resolve_or_add_series_for_grab(&state, &title, is_batch)
-                .await;
+        let outcome = match prepared_link {
+            Some(outcome) => outcome,
+            None => {
+                crate::services::library_link::resolve_or_add_series_for_grab(
+                    &state, &title, is_batch,
+                )
+                .await
+            }
+        };
 
         // Apply linkage side effects on the three "linked" branches.
         // Ambiguous / disabled / no-match get logged but produce no

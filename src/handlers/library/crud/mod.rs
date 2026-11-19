@@ -379,7 +379,7 @@ pub async fn remove_series(
         match super::cleanup::cleanup_series_files(
             &state,
             series_id,
-            &tracked.folder_name,
+            &tracked.library_folder(),
             &tracked.title,
             media_root.as_deref(),
             &recycle_bin_path,
@@ -1387,7 +1387,7 @@ pub(crate) async fn reclassify_on_disk_episode(
         ));
     }
 
-    let disk_files = media::scan_series_folder(&cfg.media_root, &series_row.folder_name).await;
+    let disk_files = media::scan_series_folder(&cfg.media_root, &series_row.library_folder()).await;
     let file = disk_files
         .iter()
         .find(|f| {
@@ -1407,7 +1407,7 @@ pub(crate) async fn reclassify_on_disk_episode(
             ),
         ))?;
 
-    let series_root = Path::new(&cfg.media_root).join(&series_row.folder_name);
+    let series_root = Path::new(&cfg.media_root).join(series_row.library_folder());
     let file_path = series_root.join(&file.filename);
     if !file_path.exists() {
         return Err((

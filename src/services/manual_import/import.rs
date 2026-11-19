@@ -400,7 +400,8 @@ pub async fn run_import(
         // name is unusable (`.` / `..` from a title written before
         // `sanitize_folder_name` handled dots), which would otherwise
         // put the files in the media root or above it.
-        let usable = media::usable_folder_name(&row.folder_name);
+        let usable = media::usable_folder_name(&row.folder_name)
+            && media::usable_library_folder(&row.library_folder());
         if created || !usable {
             let base = if !usable {
                 let generated = naming::series_folder(
@@ -452,14 +453,15 @@ pub async fn run_import(
             report.series_merged += 1;
         }
 
-        let season_dir = Path::new(&media_root)
-            .join(&row.folder_name)
-            .join(naming::season_folder(
-                &cfg.season_folder_format,
-                &cfg.title_language,
-                &naming::SeriesNames::from_series(&row),
-                1,
-            ));
+        let season_dir =
+            Path::new(&media_root)
+                .join(row.library_folder())
+                .join(naming::season_folder(
+                    &cfg.season_folder_format,
+                    &cfg.title_language,
+                    &naming::SeriesNames::from_series(&row),
+                    1,
+                ));
         let mut landed: Vec<(i32, i32, PathBuf)> = Vec::new();
 
         for (file, fv) in group.files.iter().zip(view.files.iter()) {
@@ -483,7 +485,7 @@ pub async fn run_import(
                     )
                     .await;
                     let specials_dir = Path::new(&media_root)
-                        .join(&row.folder_name)
+                        .join(row.library_folder())
                         .join(post_processing::SPECIALS_FOLDER);
                     if let Err(e) = tokio::fs::create_dir_all(&specials_dir).await {
                         gr.errors.push(format!("{}: {e}", file.rel_path));
@@ -541,7 +543,7 @@ pub async fn run_import(
                 // become an overwrite: skip the file, keep the reason.
                 let old = existing_files_for_episode(
                     &media_root,
-                    &row.folder_name,
+                    &row.library_folder(),
                     ep,
                     file.episode_count,
                 )
@@ -1039,7 +1041,8 @@ mod tests {
             .await
             .unwrap()
             .expect("series created");
-        let on_disk = media::scan_series_folder(&f.media.to_string_lossy(), &row.folder_name).await;
+        let on_disk =
+            media::scan_series_folder(&f.media.to_string_lossy(), &row.library_folder()).await;
         assert_eq!(on_disk.len(), 1, "{on_disk:?}");
         assert_eq!(on_disk[0].episode_number, 1, "{}", on_disk[0].filename);
         assert!(
@@ -1097,11 +1100,12 @@ mod tests {
                 .unwrap_or_else(|| panic!("{title} not in the library"));
             assert_eq!(row.title, title);
             assert_eq!(row.mal_id, Some(61469));
-            let mut on_disk: Vec<i32> = media::scan_series_folder(&media_root, &row.folder_name)
-                .await
-                .iter()
-                .map(|f| f.episode_number)
-                .collect();
+            let mut on_disk: Vec<i32> =
+                media::scan_series_folder(&media_root, &row.library_folder())
+                    .await
+                    .iter()
+                    .map(|f| f.episode_number)
+                    .collect();
             on_disk.sort();
             assert_eq!(on_disk, episodes, "{title} in {}", row.folder_name);
         }

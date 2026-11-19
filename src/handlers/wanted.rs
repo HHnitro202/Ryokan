@@ -256,7 +256,7 @@ async fn rows_for(
     let folders: Vec<(i64, String)> = library
         .iter()
         .filter(|s| !s.folder_name.is_empty())
-        .map(|s| (s.id, s.folder_name.clone()))
+        .map(|s| (s.id, s.library_folder()))
         .collect();
     let disk = media::scan_series_folders_batch(&cfg.media_root, folders).await;
     if tab == "cutoff" {
@@ -293,7 +293,7 @@ async fn rows_for_series(
     let folders: Vec<(i64, String)> = if series.folder_name.is_empty() {
         Vec::new()
     } else {
-        vec![(series.id, series.folder_name.clone())]
+        vec![(series.id, series.library_folder())]
     };
     let disk = media::scan_series_folders_batch(&cfg.media_root, folders).await;
     let tags = episode_tags::get_for_series(&state.db, series.id)
@@ -680,6 +680,7 @@ mod tests {
             season_year: None,
             end_year: None,
             folder_name: format!("Show {id}"),
+            library_subdir: String::new(),
             monitor_mode: monitor_mode.to_string(),
             allow_upgrades: true,
             allow_pt_upgrades: false,

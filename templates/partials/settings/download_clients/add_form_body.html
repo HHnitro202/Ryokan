@@ -69,6 +69,15 @@
                 <span class="form-hint">Where Ryokan sees the client's finished downloads. Blank if both see the same paths.</span>
             </div>
         </div>
+        <fieldset class="form-group">
+            <legend>qBittorrent library downloads</legend>
+            <label><input type="checkbox" name="direct_to_library" > Download directly into anime / season folders</label>
+            <div class="alert alert-warn" role="note">Uses General naming templates and requires post-processing. Ambiguous packs keep the usual download location. Files already in their season folder keep their original names.</div>
+            <label>Library root (as qBittorrent sees it)
+                <input type="text" name="library_root" value="" placeholder="/media/anime">
+            </label>
+            <span class="form-hint">Map General's base media directory to the same directory as qBittorrent sees it. The category destination must be inside this base; Ryokan preserves its subdirectories and appends series and season folders. This is separate from Download path above.</span>
+        </fieldset>
         <div class="setting-rows">
             <label class="setting-row">
                 <span class="setting-row-text">

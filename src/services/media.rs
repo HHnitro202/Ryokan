@@ -44,6 +44,19 @@ pub fn usable_folder_name(name: &str) -> bool {
     !name.is_empty() && !name.chars().all(|c| c == '.') && !name.contains(['/', '\\', '\0'])
 }
 
+/// A library location can include a category-relative prefix, but every
+/// component still obeys the original single-folder traversal rules.
+pub fn usable_library_folder(path: &str) -> bool {
+    let path_ref = Path::new(path);
+    !path.is_empty()
+        && !path_ref.is_absolute()
+        && !path.contains('\\')
+        && path_ref.components().all(|component| match component {
+            std::path::Component::Normal(name) => name.to_str().is_some_and(usable_folder_name),
+            _ => false,
+        })
+}
+
 /// A file found on disk that represents an episode, or several (issue
 /// #246): `episode_number` is the first episode the file holds and
 /// `episode_last` the last, equal for the ordinary one-episode file.
@@ -161,7 +174,7 @@ pub fn scan_series_folder_split(
     media_root: &str,
     folder_name: &str,
 ) -> (Vec<EpisodeFile>, Vec<EpisodeFile>) {
-    if !usable_folder_name(folder_name) {
+    if !usable_library_folder(folder_name) {
         return (Vec::new(), Vec::new());
     }
     let series_path = Path::new(media_root).join(folder_name);
@@ -291,7 +304,8 @@ fn parse_episode_file(path: &Path, series_root: &Path) -> Option<EpisodeFile> {
         return None;
     }
 
-    let span = parse_episode_span(&lower)?;
+    let span =
+        crate::services::direct_library::read_span(path).or_else(|| parse_episode_span(&lower))?;
 
     let quality = parse_quality(&lower);
 
