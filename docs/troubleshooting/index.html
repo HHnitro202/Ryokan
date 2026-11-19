@@ -1,0 +1,1695 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Self-hosted anime PVR; install, configure, troubleshoot.">
+      
+      
+      
+        <link rel="canonical" href="https://johnthreekay.github.io/Ryokan/docs/troubleshooting/">
+      
+      
+      
+        <link rel="prev" href="../external-accounts/">
+      
+      
+        <link rel="next" href="../faq/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.1.2">
+    
+    
+      
+        <title>Troubleshooting - Ryokan</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/ryokan.css">
+    
+      <link rel="stylesheet" href="../stylesheets/picker.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="Ryokan" class="md-header__button md-logo" aria-label="Ryokan" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Ryokan
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/johnthreekay/Ryokan" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnthreekay/Ryokan
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./.." class="md-tabs__link">
+          
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../install/" class="md-tabs__link">
+          
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../configuration/" class="md-tabs__link">
+          
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="././" class="md-tabs__link">
+        
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../faq/" class="md-tabs__link">
+        
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="Ryokan" class="md-nav__button md-logo" aria-label="Ryokan" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    Ryokan
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/johnthreekay/Ryokan" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnthreekay/Ryokan
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Getting started
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Welcome
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick-start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Quick start
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Installation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Installation
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Docker (recommended)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Docker reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../from-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build from source
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guides
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration (cont.)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How releases are scored
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Calendar
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wanted/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Wanted
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Importing an existing library
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Download clients
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-accounts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  External accounts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Troubleshooting
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Troubleshooting
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#things-to-check-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Things to check first
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#downloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Downloads
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sab-downloads-disappear-from-ryokan-but-still-download-in-sab" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SAB downloads disappear from Ryokan but still download in SAB
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#episode-shows-importing-forever" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Episode shows "Importing…" forever
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finished-downloads-stay-in-the-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finished downloads stay in the client
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ryokan-removed-a-download-it-decided-was-the-wrong-series" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ryokan removed a download it decided was the wrong series
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-ending-in-ryokan-tmp-or-ryokan-new-in-the-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Files ending in <code>.ryokan-tmp</code> or <code>.ryokan-new</code> in the library
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searching" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Searching
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Searching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-returns-no-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Search returns no results
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-search-saw-releases-but-grabbed-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auto search saw releases but grabbed none
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rss-skipped-a-release-it-used-to-grab" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        RSS skipped a release it used to grab
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-adult-title-finds-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        An adult title finds nothing
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anilist" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AniList">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anilist-keeps-returning-429-too-many-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList keeps returning 429 Too Many Requests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anilist-per-account-cooldown-stuck-past-60s" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList per-account cooldown stuck past 60s
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Library
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#series-page-shows-something-out-of-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series page shows something out of date
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i-deleted-an-episode-or-series-by-accident" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        I deleted an episode or series by accident
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Startup
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Startup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ryokan-fails-to-start-with-a-database-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ryokan fails to start with a database error
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  FAQ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#things-to-check-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Things to check first
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#downloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Downloads
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sab-downloads-disappear-from-ryokan-but-still-download-in-sab" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SAB downloads disappear from Ryokan but still download in SAB
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#episode-shows-importing-forever" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Episode shows "Importing…" forever
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finished-downloads-stay-in-the-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finished downloads stay in the client
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ryokan-removed-a-download-it-decided-was-the-wrong-series" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ryokan removed a download it decided was the wrong series
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-ending-in-ryokan-tmp-or-ryokan-new-in-the-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Files ending in <code>.ryokan-tmp</code> or <code>.ryokan-new</code> in the library
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#searching" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Searching
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Searching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#search-returns-no-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Search returns no results
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auto-search-saw-releases-but-grabbed-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Auto search saw releases but grabbed none
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rss-skipped-a-release-it-used-to-grab" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        RSS skipped a release it used to grab
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-adult-title-finds-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        An adult title finds nothing
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anilist" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AniList">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anilist-keeps-returning-429-too-many-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList keeps returning 429 Too Many Requests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anilist-per-account-cooldown-stuck-past-60s" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        AniList per-account cooldown stuck past 60s
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Library
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Library">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#series-page-shows-something-out-of-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Series page shows something out of date
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i-deleted-an-episode-or-series-by-accident" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        I deleted an episode or series by accident
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Startup
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Startup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ryokan-fails-to-start-with-a-database-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Ryokan fails to start with a database error
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Anchor link">&para;</a></h1>
+<h2 id="things-to-check-first">Things to check first<a class="headerlink" href="#things-to-check-first" title="Anchor link">&para;</a></h2>
+<p>Three places answer most questions:</p>
+<ul>
+<li><strong>System → Logs.</strong> Filter by the category for whatever went wrong: Grab, AutoSearch, Nyaa, DownloadClient, PostProcess, AniList, and so on. See <a href="../system/#logs">Logs</a>.</li>
+<li><strong>Test connection</strong> on each download client and indexer under Settings.</li>
+<li><strong>Grab History.</strong> Click an episode on its series page. The history lists every release grabbed for it, with its state and time.</li>
+</ul>
+<h2 id="downloads">Downloads<a class="headerlink" href="#downloads" title="Anchor link">&para;</a></h2>
+<h3 id="sab-downloads-disappear-from-ryokan-but-still-download-in-sab">SAB downloads disappear from Ryokan but still download in SAB<a class="headerlink" href="#sab-downloads-disappear-from-ryokan-but-still-download-in-sab" title="Anchor link">&para;</a></h3>
+<p>SABnzbd does not have the category Ryokan is set to use, so it put the download in its default category, where Ryokan does not look.</p>
+<p>Click <strong>Test connection</strong> on the SABnzbd client under Settings → Download Clients. Ryokan creates the category and moves the download into it.</p>
+<p>If the test reports <code>SAB rejected category creation: HTTP 403</code>, you gave Ryokan the NZB key. Use the full API key from SABnzbd's <strong>Config → General → Security</strong>.</p>
+<h3 id="episode-shows-importing-forever">Episode shows "Importing…" forever<a class="headerlink" href="#episode-shows-importing-forever" title="Anchor link">&para;</a></h3>
+<p>The download finished but the file has not been placed in your library.</p>
+<ul>
+<li><strong>Post-processing is off.</strong> Turn it on under Settings → General. If it is off on purpose and the row still says "Importing…", reload the page.</li>
+<li><strong>The import is failing.</strong> Check System → Logs, category <code>PostProcess</code>. The usual causes:<ul>
+<li>Ryokan cannot write to the media root</li>
+<li>the disk is full</li>
+<li>Ryokan cannot see the download folder at the path the client reports. See <a href="../download-clients/#per-client-download-paths">Per-client download paths</a>.</li>
+</ul>
+</li>
+</ul>
+<p>After 24 hours with nothing to import, Ryokan marks the download failed and puts the release on the blocklist. The limit is <strong>Give up on stuck imports</strong> under Settings → General. To try again, fix the cause, remove the release from Downloads → Blocklist, and search again. The download itself stays in the client, so delete it there if you no longer want it.</p>
+<h3 id="finished-downloads-stay-in-the-client">Finished downloads stay in the client<a class="headerlink" href="#finished-downloads-stay-in-the-client" title="Anchor link">&para;</a></h3>
+<p>Ryokan removes a download once it has been imported and has finished seeding. If one is still there:</p>
+<ul>
+<li><strong>Remove completed downloads is off</strong> for that client. Edit the client under Settings → Download Clients.</li>
+<li><strong>It is still seeding.</strong> A torrent is removed only after the client stops it at a ratio or time limit. Set a limit in the client, with pause or stop as the action, not delete. rTorrent needs a ratio group in <code>.rtorrent.rc</code>.</li>
+<li><strong>You paused it yourself.</strong> Those are left alone.</li>
+<li><strong>The import failed or was partial.</strong> Those stay so you can look at them.</li>
+<li><strong>It only just finished.</strong> Ryokan checks every five minutes.</li>
+</ul>
+<h3 id="ryokan-removed-a-download-it-decided-was-the-wrong-series">Ryokan removed a download it decided was the wrong series<a class="headerlink" href="#ryokan-removed-a-download-it-decided-was-the-wrong-series" title="Anchor link">&para;</a></h3>
+<p>Ryokan compares the file names in each download with the series it was grabbed for. When they clearly belong to another show, it removes the download, blocklists the release and searches again. <strong>System → Misgrabs</strong> shows what was caught and the file names it looked at.</p>
+<p>If the release was right, click <strong>Restore</strong>. Ryokan adds it back and does not flag it again.</p>
+<p>If one series keeps producing misgrabs, groups probably name it differently from AniList. Add the name they use under <strong>Advanced search overrides → Alternate titles</strong> on the series page. Ryokan stops searching again automatically after three misgrabs for a series in a day.</p>
+<p>To decide each case yourself, turn off <strong>Remove and blocklist detected misgrabs</strong> under Settings → General.</p>
+<h3 id="files-ending-in-ryokan-tmp-or-ryokan-new-in-the-library">Files ending in <code>.ryokan-tmp</code> or <code>.ryokan-new</code> in the library<a class="headerlink" href="#files-ending-in-ryokan-tmp-or-ryokan-new-in-the-library" title="Anchor link">&para;</a></h3>
+<p>These are left behind when an import is interrupted, for example by a restart while a large file was being copied. Ryokan cleans them up hourly once they are more than two hours old. A newer one may be a copy in progress, so leave it.</p>
+<p>A <code>.ryokan-new</code> file is a complete episode that was about to replace an older one. It goes to the recycle bin if you have one. To keep it, rename it in the season folder: remove the leading dot and the <code>.ryokan-new</code> ending.</p>
+<h2 id="searching">Searching<a class="headerlink" href="#searching" title="Anchor link">&para;</a></h2>
+<h3 id="search-returns-no-results">Search returns no results<a class="headerlink" href="#search-returns-no-results" title="Anchor link">&para;</a></h3>
+<p>Check System → Logs, categories <code>Search</code> and <code>AutoSearch</code>. Common causes:</p>
+<ul>
+<li><strong>Your quality settings exclude everything on offer.</strong> Loosen them under Settings → Quality &amp; Releases, or use <strong>Interactive search</strong> on the episode to see everything.</li>
+<li><strong>Minimum Score</strong> under Settings → Custom Formats is filtering releases out of automatic searches. Interactive search still shows them.</li>
+<li><strong>An indexer is down.</strong> It simply adds nothing to the results. Run <strong>Test</strong> on each indexer.</li>
+</ul>
+<h3 id="auto-search-saw-releases-but-grabbed-none">Auto search saw releases but grabbed none<a class="headerlink" href="#auto-search-saw-releases-but-grabbed-none" title="Anchor link">&para;</a></h3>
+<p>Automatic search only takes a release whose name contains one of the series' titles exactly. When it skips releases that came close, the toast says "looked close but none named the series exactly" and lists some. System → Logs has them all.</p>
+<p>If one is right, add that name on the series page under <strong>Advanced search overrides → Alternate titles</strong> and search again. See <a href="../scoring/#what-automatic-search-will-and-will-not-grab">What automatic search will and will not grab</a>.</p>
+<h3 id="rss-skipped-a-release-it-used-to-grab">RSS skipped a release it used to grab<a class="headerlink" href="#rss-skipped-a-release-it-used-to-grab" title="Anchor link">&para;</a></h3>
+<p>Since 2.3.0, RSS is stricter about releases that use a shortened title, such as "Ano Hana", or that tag a first season <code>S01</code> when the series' titles name no season. System → RSS lists such a release as "No tracked series match".</p>
+<p>Add the name the release uses under <strong>Advanced search overrides → Alternate titles</strong> on the series page. The next sync takes it.</p>
+<h3 id="an-adult-title-finds-nothing">An adult title finds nothing<a class="headerlink" href="#an-adult-title-finds-nothing" title="Anchor link">&para;</a></h3>
+<p>Nyaa keeps adult releases on sukebei, which Ryokan's built-in search does not cover. You need an indexer that carries them, such as sukebei through Prowlarr or Jackett.</p>
+<p>If a search is still empty, run it in Prowlarr or Jackett directly. If it finds releases there, check that the indexer is enabled in Ryokan and passes its test. You can also set the indexer's <strong>Categories</strong> field yourself under Settings → Indexers.</p>
+<h2 id="anilist">AniList<a class="headerlink" href="#anilist" title="Anchor link">&para;</a></h2>
+<h3 id="anilist-keeps-returning-429-too-many-requests">AniList keeps returning 429 Too Many Requests<a class="headerlink" href="#anilist-keeps-returning-429-too-many-requests" title="Anchor link">&para;</a></h3>
+<p>AniList limits how many requests it accepts each minute. Open the latest failure in System → Logs. Its detail line looks like this:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[limit=30 remaining=0 reset=1777813117 retry_after=6 ryokan_60s=27]
+</span></code></pre></div>
+<p><code>ryokan_60s</code> is how many requests Ryokan itself made in the last minute.</p>
+<ul>
+<li><strong><code>ryokan_60s</code> is low</strong>: something else used up the limit. This could be an anilist.co tab open in your browser, a second Ryokan using the same account, or another tool.</li>
+<li><strong><code>ryokan_60s</code> is close to 30</strong>: Ryokan sent too many. That is a bug, so please report it.</li>
+<li><strong><code>no rate-limit headers</code></strong>: the 429 did not come from AniList's rate limit. It may be Cloudflare or a proxy in between.</li>
+</ul>
+<h3 id="anilist-per-account-cooldown-stuck-past-60s">AniList per-account cooldown stuck past 60s<a class="headerlink" href="#anilist-per-account-cooldown-stuck-past-60s" title="Anchor link">&para;</a></h3>
+<p>If syncs keep failing with 429 even though Ryokan is making very few requests, AniList has put your account in a longer cooldown. This can last hours.</p>
+<ol>
+<li>Stop any other Ryokan using the same account.</li>
+<li>Close any anilist.co tabs.</li>
+<li>Do not press <strong>Sync now</strong>. Ryokan retries less and less often by itself.</li>
+<li>Wait. The cooldown ends without you doing anything.</li>
+</ol>
+<p>Linking the account again does not help, because linking counts against the same limit.</p>
+<h2 id="library">Library<a class="headerlink" href="#library" title="Anchor link">&para;</a></h2>
+<h3 id="series-page-shows-something-out-of-date">Series page shows something out of date<a class="headerlink" href="#series-page-shows-something-out-of-date" title="Anchor link">&para;</a></h3>
+<p>The page updates download progress every 5 seconds. If something looks wrong, reload the page. If it is still wrong after a reload, open the episode's Grab History, which shows what Ryokan has recorded for it.</p>
+<h3 id="i-deleted-an-episode-or-series-by-accident">I deleted an episode or series by accident<a class="headerlink" href="#i-deleted-an-episode-or-series-by-accident" title="Anchor link">&para;</a></h3>
+<p>If you have a recycle bin set under Settings → General, open the Library page and click the recycle bin icon in the toolbar. Each deleted episode or series folder has a <strong>Restore</strong> button.</p>
+<p>Restoring a series folder brings back the files but not the library entry. Add the series again and Ryokan finds the files.</p>
+<p>Items are deleted for good after 14 days by default. If no recycle bin was set when you deleted, the files are gone.</p>
+<h2 id="startup">Startup<a class="headerlink" href="#startup" title="Anchor link">&para;</a></h2>
+<h3 id="ryokan-fails-to-start-with-a-database-error">Ryokan fails to start with a database error<a class="headerlink" href="#ryokan-fails-to-start-with-a-database-error" title="Anchor link">&para;</a></h3>
+<p>The database file may have been damaged by an earlier crash. To check:</p>
+<ol>
+<li>Stop Ryokan: <code>docker compose down ryokan</code>. Do not add <code>-v</code>.</li>
+<li>Copy the database somewhere safe: <code>cp /srv/docker/ryokan/ryokan.db /srv/docker/ryokan/ryokan.db.backup</code>. Use your own data folder's path.</li>
+<li>Run <code>sqlite3 /srv/docker/ryokan/ryokan.db "PRAGMA integrity_check;"</code>.</li>
+</ol>
+<p>If it prints anything other than <code>ok</code>, the database is corrupt. Restore a backup, or delete the file and start again from first-run setup.</p>
+<hr />
+<p><em>Last updated: 2026-08-29.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.tracking","search.suggest","search.highlight","content.code.copy","content.code.annotate"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      
+        <script src="../javascripts/picker.js"></script>
+      
+    
+  </body>
+</html>

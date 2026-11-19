@@ -1,0 +1,2349 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Self-hosted anime PVR; install, configure, troubleshoot.">
+      
+      
+      
+        <link rel="canonical" href="https://johnthreekay.github.io/Ryokan/docs/quick-start/">
+      
+      
+      
+        <link rel="prev" href="./..">
+      
+      
+        <link rel="next" href="../install/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.1.2">
+    
+    
+      
+        <title>Quick start - Ryokan</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/ryokan.css">
+    
+      <link rel="stylesheet" href="../stylesheets/picker.css">
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
+    <div data-md-component="skip">
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="Ryokan" class="md-header__button md-logo" aria-label="Ryokan" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Ryokan
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quick start
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/johnthreekay/Ryokan" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnthreekay/Ryokan
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./.." class="md-tabs__link">
+          
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../install/" class="md-tabs__link">
+          
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../configuration/" class="md-tabs__link">
+          
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../troubleshooting/" class="md-tabs__link">
+        
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../faq/" class="md-tabs__link">
+        
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="Ryokan" class="md-nav__button md-logo" aria-label="Ryokan" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    Ryokan
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/johnthreekay/Ryokan" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    johnthreekay/Ryokan
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+            <label class="md-nav__title" for="__nav_1">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Getting started
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Welcome
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Quick start
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Quick start
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-install-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Install Docker
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choose-your-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Choose your stack
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-create-the-folders-and-start-the-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Create the folders and start the stack
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-set-up-your-download-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Set up your download client
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Set up your download client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qbittorrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        qBittorrent
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deluge" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deluge
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transmission" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Transmission
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rtorrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        rTorrent
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sabnzbd" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SABnzbd
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-set-up-your-media-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Set up your media server
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-first-login-to-ryokan" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. First login to Ryokan
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-add-your-download-client-to-ryokan" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. Add your download client to Ryokan
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-add-a-show-and-watch-it-land" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. Add a show and watch it land
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-seerr" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Connect Seerr
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vpn-port-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        VPN port forwarding
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverse-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reverse proxy
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-an-indexer-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add an indexer (optional)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-indexers-with-prowlarr" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add indexers with Prowlarr
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-indexers-with-jackett" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add indexers with Jackett
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#link-anilist-or-mal-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Link AniList or MAL (optional)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-something-goes-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        If something goes wrong
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What next?
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Installation
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_2">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Installation
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Docker (recommended)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Docker reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../from-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Build from source
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Guides
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Guides
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration (cont.)
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  How releases are scored
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../calendar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Calendar
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wanted/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Wanted
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual-import/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Importing an existing library
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Download clients
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-accounts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  External accounts
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Troubleshooting
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  FAQ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-install-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. Install Docker
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choose-your-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. Choose your stack
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-create-the-folders-and-start-the-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. Create the folders and start the stack
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-set-up-your-download-client" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. Set up your download client
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Set up your download client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qbittorrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        qBittorrent
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deluge" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deluge
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transmission" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Transmission
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rtorrent" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        rTorrent
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sabnzbd" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SABnzbd
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-set-up-your-media-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. Set up your media server
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-first-login-to-ryokan" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. First login to Ryokan
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-add-your-download-client-to-ryokan" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. Add your download client to Ryokan
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-add-a-show-and-watch-it-land" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. Add a show and watch it land
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-seerr" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Connect Seerr
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vpn-port-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        VPN port forwarding
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverse-proxy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reverse proxy
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-an-indexer-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add an indexer (optional)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-indexers-with-prowlarr" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add indexers with Prowlarr
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-indexers-with-jackett" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Add indexers with Jackett
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#link-anilist-or-mal-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Link AniList or MAL (optional)
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#if-something-goes-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        If something goes wrong
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What next?
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
+                
+                  
+
+  
+  
+
+
+<h1 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Anchor link">&para;</a></h1>
+<p>This guide takes you from a bare Linux server to a full installation of Ryokan and its connectors.</p>
+<h2 id="1-install-docker">1. Install Docker<a class="headerlink" href="#1-install-docker" title="Anchor link">&para;</a></h2>
+<p>Skip this step if you already have Docker + Docker Compose.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Debian-based</label><label for="__tabbed_1_2">Fedora and RHEL-based</label><label for="__tabbed_1_3">Arch-based</label><label for="__tabbed_1_4">openSUSE</label><label for="__tabbed_1_5">Unraid, Synology, TrueNAS</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://get.docker.com<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>sh
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://get.docker.com<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>sh
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>docker
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>docker<span class="w"> </span>docker-compose
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>docker
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>sudo<span class="w"> </span>zypper<span class="w"> </span>install<span class="w"> </span>docker<span class="w"> </span>docker-compose
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>docker
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Docker is already part of the system. On Synology, install <strong>Container Manager</strong> from the Package Center. On Unraid, install the <strong>Compose Manager</strong> plugin from Community Applications.</p>
+<p>Use a folder on your storage pool for the two folders in step 2, for example <code>/mnt/user/media</code> on Unraid or <code>/volume1/media</code> on Synology.</p>
+</div>
+</div>
+</div>
+<p>Then let your own user run Docker without <code>sudo</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+</span></code></pre></div>
+<p>You'll have to log out and log back in for that to take effect. Check that it works:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>hello-world
+</span></code></pre></div>
+<p>It should print "Hello from Docker!" along with the steps it took to generate the message.</p>
+<h2 id="2-choose-your-stack">2. Choose your stack<a class="headerlink" href="#2-choose-your-stack" title="Anchor link">&para;</a></h2>
+<p>The defaults are a good start if you have no preference. You can always come back and change them later.</p>
+<form id="stack-form" class="stack-form" autocomplete="off">
+<div class="sf-group">
+  <div class="sf-head"><span class="sf-title">Download client</span><span class="sf-sub">Pick one or more.</span></div>
+  <div class="sf-grid">
+    <label class="sf-opt"><input type="checkbox" name="dlclient" value="qbittorrent" checked><span class="sf-name">qBittorrent</span><span class="sf-desc">Recommended.</span></label>
+    <label class="sf-opt"><input type="checkbox" name="dlclient" value="deluge"><span class="sf-name">Deluge</span></label>
+    <label class="sf-opt"><input type="checkbox" name="dlclient" value="transmission"><span class="sf-name">Transmission</span></label>
+    <label class="sf-opt"><input type="checkbox" name="dlclient" value="rtorrent"><span class="sf-name">rTorrent</span><span class="sf-desc">Comes with the ruTorrent web UI.</span></label>
+    <label class="sf-opt"><input type="checkbox" name="dlclient" value="sabnzbd"><span class="sf-name">SABnzbd</span><span class="sf-desc">Usenet. Needs a Usenet provider and indexer.</span></label>
+  </div>
+</div>
+<div class="sf-group">
+  <div class="sf-head"><span class="sf-title">Media server</span><span class="sf-sub">Allows you to stream your library to other devices.</span></div>
+  <div class="sf-grid">
+    <label class="sf-opt"><input type="radio" name="media_server" value="jellyfin" checked><span class="sf-name">Jellyfin</span><span class="sf-desc">Recommended. Free and open source.</span></label>
+    <label class="sf-opt"><input type="radio" name="media_server" value="emby"><span class="sf-name">Emby</span><span class="sf-desc">Some features need Emby Premiere.</span></label>
+    <label class="sf-opt"><input type="radio" name="media_server" value="plex"><span class="sf-name">Plex</span><span class="sf-desc">Needs a Plex account.</span></label>
+    <label class="sf-opt"><input type="radio" name="media_server" value="none"><span class="sf-name">None</span><span class="sf-desc">You already have one, or don't want one.</span></label>
+  </div>
+</div>
+<div class="sf-group">
+  <div class="sf-head"><span class="sf-title">Requests</span><span class="sf-sub">A page where you or your friends/family request anime.</span></div>
+  <div class="sf-grid">
+    <label class="sf-opt"><input type="radio" name="requests" value="none" checked><span class="sf-name">None</span></label>
+    <label class="sf-opt"><input type="radio" name="requests" value="seerr"><span class="sf-name">Seerr</span><span class="sf-desc">Sends requests to Ryokan.</span></label>
+  </div>
+</div>
+<div class="sf-group">
+  <div class="sf-head"><span class="sf-title">Folders and user</span></div>
+  <div class="sf-fields">
+    <label class="sf-field sf-wide"><span class="sf-label">Media folder</span><input type="text" name="shared_path" value="/srv/media" spellcheck="false"><span class="sf-help">Holds your downloads and your library. Use a full path.</span></label>
+    <label class="sf-field sf-wide"><span class="sf-label">Settings folder</span><input type="text" name="appdata_path" value="/srv/docker" spellcheck="false"><span class="sf-help">Each app keeps its settings in a folder under this one.</span></label>
+    <label class="sf-field"><span class="sf-label">User ID</span><input type="number" name="puid" value="1000" min="0"><span class="sf-help"><code>id -u</code> prints yours.</span></label>
+    <label class="sf-field"><span class="sf-label">Group ID</span><input type="number" name="pgid" value="1000" min="0"><span class="sf-help"><code>id -g</code> prints yours.</span></label>
+    <label class="sf-field"><span class="sf-label">Time zone</span><input type="text" name="tz" value="UTC" placeholder="America/Chicago" spellcheck="false"><span class="sf-help">Such as <code>America/Chicago</code>.</span></label>
+  </div>
+</div>
+<details class="sf-more">
+  <summary>More options: file handling, indexers, VPN, HTTPS, host check</summary>
+  <div class="sf-group">
+    <div class="sf-head"><span class="sf-title">File operation mode</span><span class="sf-sub">How a finished download gets into your library.</span></div>
+    <div class="sf-grid">
+      <label class="sf-opt"><input type="radio" name="file_mode" value="hardlink" checked><span class="sf-name">Hardlink</span><span class="sf-desc">Recommended. No extra disk space, and torrents keep seeding.</span></label>
+      <label class="sf-opt"><input type="radio" name="file_mode" value="copy"><span class="sf-name">Copy</span><span class="sf-desc">Torrents keep seeding. Each episode takes its space twice.</span></label>
+      <label class="sf-opt"><input type="radio" name="file_mode" value="move"><span class="sf-name">Move</span><span class="sf-desc">No extra disk space. Torrents stop seeding.</span></label>
+    </div>
+  </div>
+  <div class="sf-group">
+    <div class="sf-head"><span class="sf-title">Indexer manager</span><span class="sf-sub">Lets Ryokan search trackers and Usenet indexers besides Nyaa, which is built in.</span></div>
+    <div class="sf-grid">
+      <label class="sf-opt"><input type="radio" name="indexer" value="none" checked><span class="sf-name">None</span><span class="sf-desc">Nyaa only.</span></label>
+      <label class="sf-opt"><input type="radio" name="indexer" value="prowlarr"><span class="sf-name">Prowlarr</span><span class="sf-desc">Torrents and Usenet. The usual choice.</span></label>
+      <label class="sf-opt"><input type="radio" name="indexer" value="jackett"><span class="sf-name">Jackett</span><span class="sf-desc">Torrents only.</span></label>
+    </div>
+  </div>
+  <div class="sf-group">
+    <div class="sf-head"><span class="sf-title">VPN</span><span class="sf-sub">Sends your torrent clients through a VPN with Gluetun. You need a VPN subscription.</span></div>
+    <div class="sf-grid">
+      <label class="sf-opt"><input type="radio" name="vpn" value="none" checked><span class="sf-name">None</span><span class="sf-desc">Torrents use your own connection.</span></label>
+      <label class="sf-opt"><input type="radio" name="vpn" value="gluetun"><span class="sf-name">Gluetun</span><span class="sf-desc">ProtonVPN, Mullvad, PIA, NordVPN and others.</span></label>
+    </div>
+  </div>
+  <div class="sf-group">
+    <div class="sf-head"><span class="sf-title">Reverse proxy</span><span class="sf-sub">Puts Ryokan on your own domain with HTTPS. You need a domain.</span></div>
+    <div class="sf-grid">
+      <label class="sf-opt"><input type="radio" name="proxy" value="none" checked><span class="sf-name">None</span><span class="sf-desc">Reach Ryokan by address and port.</span></label>
+      <label class="sf-opt"><input type="radio" name="proxy" value="caddy"><span class="sf-name">Caddy</span><span class="sf-desc">Gets certificates on its own. The easy one.</span></label>
+      <label class="sf-opt"><input type="radio" name="proxy" value="traefik"><span class="sf-name">Traefik</span><span class="sf-desc">Configured with labels.</span></label>
+      <label class="sf-opt"><input type="radio" name="proxy" value="nginx"><span class="sf-name">nginx</span><span class="sf-desc">You write the config and bring the certificates.</span></label>
+      <label class="sf-opt"><input type="radio" name="proxy" value="cloudflared"><span class="sf-name">Cloudflare Tunnel</span><span class="sf-desc">No open ports on your router.</span></label>
+    </div>
+  </div>
+  <div class="sf-group">
+    <div class="sf-head"><span class="sf-title">Host check</span><span class="sf-sub">Ryokan's pages then only answer to an IP address, <code>localhost</code>, or the names you list. See <a href="../../docker/#host-check">Host check</a>.</span></div>
+    <div class="sf-grid">
+      <label class="sf-opt"><input type="checkbox" name="host_check"><span class="sf-name">Turn on the host check</span><span class="sf-desc">Off by default.</span></label>
+    </div>
+    <div class="sf-fields">
+      <label class="sf-field sf-wide"><span class="sf-label">Names you open Ryokan by</span><input type="text" name="allowed_hosts" value="" placeholder="nas ryokan.lan ryokan.example.com" spellcheck="false"><span class="sf-help">Separate them with spaces.</span></label>
+    </div>
+  </div>
+</details>
+<div class="sf-summary">
+  <span class="sf-summary-label">Your stack</span>
+  <span class="sf-chips" data-picker="summary"><span class="sf-chip">Ryokan</span><span class="sf-chip">qBittorrent</span><span class="sf-chip">Jellyfin</span></span>
+</div>
+<p class="sf-error" data-picker="problem" hidden></p>
+</form>
+
+<div class="admonition tip">
+<p class="admonition-title">Already running one of these?</p>
+<p>Pick <strong>None</strong> for the media server if you have one, or untick the download client and remove it from the file in step 3. Your existing media server has to be able to read <code>/srv/media/anime</code>, and your existing download client has to save into <code>/srv/media/downloads</code>.</p>
+</div>
+<h2 id="3-create-the-folders-and-start-the-stack">3. Create the folders and start the stack<a class="headerlink" href="#3-create-the-folders-and-start-the-stack" title="Anchor link">&para;</a></h2>
+<p>Create the folders the stack uses, owned by the user from step 2:</p>
+<p><button type="button" data-copy="prep" class="stack-copy">Copy commands</button></p>
+<pre data-picker="prep" class="stack-output"><code>sudo mkdir -p \
+  /srv/media/downloads \
+  /srv/media/anime \
+  /srv/docker/ryokan \
+  /srv/docker/qbittorrent \
+  /srv/docker/jellyfin
+sudo chown -R 1000:1000 \
+  /srv/media/downloads \
+  /srv/media/anime \
+  /srv/docker/ryokan \
+  /srv/docker/qbittorrent \
+  /srv/docker/jellyfin</code></pre>
+
+<p>Next, make a folder for the stack itself, for example <code>/srv/stack</code>, and save this in it as <code>docker-compose.yml</code>:</p>
+<p><button type="button" data-copy="compose" class="stack-copy">Copy file</button></p>
+<pre data-picker="compose" class="stack-output"><code class="language-yaml">Loading…</code></pre>
+
+<div data-when="client:rtorrent">
+<p><strong>rTorrent: set a password before the first start.</strong> Without these two files, the ruTorrent page and the address Ryokan uses are open to anyone on your network. Put your own password in place of <code>REPLACE-WITH-YOUR-PASSWORD</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sudo mkdir -p /srv/docker/rutorrent/passwd
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>docker run --rm httpd:2.4-alpine htpasswd -Bbn admin "REPLACE-WITH-YOUR-PASSWORD" \
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  | sudo tee /srv/docker/rutorrent/passwd/rutorrent.htpasswd &gt; /dev/null
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>sudo cp /srv/docker/rutorrent/passwd/rutorrent.htpasswd /srv/docker/rutorrent/passwd/rpc.htpasswd
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>sudo chown -R 1000:1000 /srv/docker/rutorrent/passwd
+</span></code></pre></div>
+<p>The username is <code>admin</code>.</p>
+</div>
+<div data-when="server:plex">
+<p><strong>Plex: add a claim token before the first start.</strong> Plex only lets you set up a new server from the same machine, or with a claim token. Get one at <a href="https://www.plex.tv/claim/">plex.tv/claim</a>, paste it into <code>PLEX_CLAIM</code> in the file, and start the stack within four minutes.</p>
+</div>
+<div data-when="vpn:gluetun">
+<p><strong>VPN: add your provider's details before the first start.</strong> In the <code>gluetun</code> part of the file, set <code>VPN_SERVICE_PROVIDER</code> and the keys or login your provider gave you. The <a href="https://github.com/qdm12/gluetun-wiki">Gluetun wiki</a> lists what each provider needs. If they are wrong, your torrent clients have no connection at all.</p>
+</div>
+<div data-when="proxy:caddy">
+<p><strong>Caddy: put your domain in the file.</strong> Replace <code>ryokan.example.com</code> in the <code>caddy</code> part of the file with your own name, and point that name at this server.</p>
+</div>
+<div data-when="proxy:traefik">
+<p><strong>Traefik: put your email and domain in the file.</strong> Replace <code>you@example.com</code> in the <code>traefik</code> part of the file. Then add the three labels from the comment under it to the <code>ryokan</code> service, with your own name in place of <code>ryokan.example.com</code>.</p>
+</div>
+<div data-when="proxy:nginx">
+<p><strong>nginx: write the config before the first start.</strong> The comment in the <code>nginx</code> part of the file has a config to start from. Save it as <code>/srv/docker/nginx/conf.d/ryokan.conf</code>, and put your certificate files in <code>/srv/docker/nginx/certs</code>.</p>
+</div>
+<div data-when="proxy:cloudflared">
+<p><strong>Cloudflare Tunnel: paste your tunnel token into the file.</strong> Create a tunnel in Cloudflare Zero Trust under <strong>Networks → Tunnels</strong>, and paste its token into <code>TUNNEL_TOKEN</code>. In the tunnel's settings, add a public hostname that points at <code>http://ryokan:8978</code>.</p>
+</div>
+<p>Start the stack from the folder that holds the file:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span></code></pre></div>
+<p>The first start downloads every app, which can take a few minutes. <code>docker compose ps</code> should then list each one as running.</p>
+<p>The addresses below use <code>localhost</code>. If the server is another machine, use its name or IP address in place of <code>localhost</code>.</p>
+<h2 id="4-set-up-your-download-client">4. Set up your download client<a class="headerlink" href="#4-set-up-your-download-client" title="Anchor link">&para;</a></h2>
+<p>Each client needs to save into <code>/srv/media/downloads</code>. <span data-when="mode:hardlink">Ryokan can only hardlink a finished file when the client saved it there.</span><span data-when="mode:copy mode:move">That is where Ryokan picks finished files up from.</span></p>
+<div data-when="client:qbittorrent">
+<h3 id="qbittorrent">qBittorrent<a class="headerlink" href="#qbittorrent" title="Anchor link">&para;</a></h3>
+<ol>
+<li>
+<p>qBittorrent prints a temporary password to its log the first time it starts. Find it with:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>qbittorrent<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"temporary password"</span>
+</span></code></pre></div>
+</li>
+<li>
+<p>Open <a href="http://localhost:8080">http://localhost:8080</a> and log in as <code>admin</code> with your temp password.</p>
+</li>
+<li>Go to <strong>Tools → Options → Web UI</strong> and set your own password under Authentication.</li>
+<li>Go to <strong>Tools → Options → Downloads</strong> and set <strong>Default Save Path</strong> to <code>/srv/media/downloads</code>.</li>
+<li>Click <strong>Save</strong>.</li>
+</ol>
+</div>
+<div data-when="client:deluge">
+<h3 id="deluge">Deluge<a class="headerlink" href="#deluge" title="Anchor link">&para;</a></h3>
+<ol>
+<li>Open <a href="http://localhost:8112">http://localhost:8112</a> and log in with the default password <code>deluge</code>. Change it when Deluge asks.</li>
+<li>Go to <strong>Preferences → Downloads</strong> and set <strong>Download to</strong> to <code>/srv/media/downloads</code>.</li>
+<li>Go to <strong>Preferences → Network</strong>. Under Incoming Port, untick <strong>Use Random Port</strong> and set the port to <code data-v="peer-deluge">6881</code>. This is the port the stack opens for Deluge.</li>
+<li>Click <strong>Apply</strong>.</li>
+</ol>
+</div>
+<div data-when="client:transmission">
+<h3 id="transmission">Transmission<a class="headerlink" href="#transmission" title="Anchor link">&para;</a></h3>
+<ol>
+<li>Open <a href="http://localhost:9091">http://localhost:9091</a>. The stack runs Transmission without a login.</li>
+<li>Open the preferences and go to <strong>Torrents</strong>. Set <strong>Download to</strong> to <code>/srv/media/downloads</code>.</li>
+<li>Turn on <strong>Use temporary folder</strong> and set it to <code>/srv/media/downloads/incomplete</code>.</li>
+</ol>
+</div>
+<div data-when="client:rtorrent">
+<h3 id="rtorrent">rTorrent<a class="headerlink" href="#rtorrent" title="Anchor link">&para;</a></h3>
+<p>rTorrent's image saves to its own folder, so its config file needs two changes. Open <code>/srv/docker/rutorrent/rtorrent/.rtorrent.rc</code> in an editor.</p>
+<ol>
+<li>
+<p>Add this line:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>directory.default.set = /srv/media/downloads/temp
+</span></code></pre></div>
+</li>
+<li>
+<p>Change the line that starts with <code>method.insert = d.get_finished_dir</code> to:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>method.insert = d.get_finished_dir, simple, "cat=/srv/media/downloads/complete/,$d.custom1="
+</span></code></pre></div>
+</li>
+<li>
+<p>Restart it:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>rutorrent
+</span></code></pre></div>
+</li>
+</ol>
+<p>The ruTorrent page is at <a href="http://localhost:8082">http://localhost:8082</a>. Log in as <code>admin</code> with the password from step 3.</p>
+</div>
+<div data-when="client:sabnzbd">
+<h3 id="sabnzbd">SABnzbd<a class="headerlink" href="#sabnzbd" title="Anchor link">&para;</a></h3>
+<ol>
+<li>Open <a href="http://localhost:8081">http://localhost:8081</a> and go through the setup wizard. This is where you enter your Usenet provider.</li>
+<li>Go to <strong>Config → Folders</strong>. Set <strong>Temporary Download Folder</strong> to <code>/srv/media/downloads/incomplete</code> and <strong>Completed Download Folder</strong> to <code>/srv/media/downloads/complete</code>.</li>
+<li>Go to <strong>Config → Special</strong> and add <code>sabnzbd</code> to <strong>host_whitelist</strong>. Save, and restart SABnzbd. Until you do, SABnzbd answers Ryokan with "Access denied".</li>
+<li>Go to <strong>Config → General → Security</strong> and copy the <strong>API Key</strong>. Use the full API key, not the NZB key. You need it in step 7.</li>
+</ol>
+</div>
+<h2 id="5-set-up-your-media-server">5. Set up your media server<a class="headerlink" href="#5-set-up-your-media-server" title="Anchor link">&para;</a></h2>
+<div data-when="server:none">
+<p>You picked no media server, so there is nothing to do here. If you run one somewhere else, give it a library for shows that points at <code>/srv/media/anime</code>.</p>
+</div>
+<div data-when="server:jellyfin">
+<p>Open <a href="http://localhost:8096">http://localhost:8096</a> and go through Jellyfin's setup wizard.</p>
+<ol>
+<li>Create an admin account. It is separate from Ryokan's.</li>
+<li>Add a library with the content type <strong>Shows</strong>, and give it the folder <code>/srv/media/anime</code>.</li>
+<li>Accept the defaults for everything else.</li>
+</ol>
+<p>Then make a key for Ryokan. Go to <strong>Dashboard → API Keys</strong>, click <strong>+</strong>, and name it "Ryokan". Copy the key. You need it in the next step.</p>
+</div>
+<div data-when="server:emby">
+<p>Open <a href="http://localhost:8096">http://localhost:8096</a> and go through Emby's setup wizard.</p>
+<ol>
+<li>Create an admin account. It is separate from Ryokan's.</li>
+<li>Add a library with the content type <strong>TV shows</strong>, and give it the folder <code>/srv/media/anime</code>.</li>
+<li>Accept the defaults for everything else.</li>
+</ol>
+<p>Then make a key for Ryokan. Open <strong>Settings</strong> (the gear), go to <strong>Advanced → API Keys</strong>, click <strong>New API Key</strong>, and name it "Ryokan". Copy the key. You need it in the next step.</p>
+</div>
+<div data-when="server:plex">
+<p>Open <a href="http://localhost:32400/web">http://localhost:32400/web</a> and sign in with your Plex account.</p>
+<ol>
+<li>Give the server a name.</li>
+<li>Add a library of the type <strong>TV Shows</strong>, and give it the folder <code>/srv/media/anime</code>.</li>
+</ol>
+<p>Then find your token for Ryokan. Once the library has something in it, open any episode, click <strong>⋯ → Get Info → View XML</strong>, and look at the address of the page that opens. It ends in <code>X-Plex-Token=</code>. The value after it is the token. Until then, leave the media server fields in the next step empty and add them later.</p>
+</div>
+<div data-when="server:any">
+<p>The library stays empty until Ryokan imports its first episode.</p>
+</div>
+<h2 id="6-first-login-to-ryokan">6. First login to Ryokan<a class="headerlink" href="#6-first-login-to-ryokan" title="Anchor link">&para;</a></h2>
+<p>Open <a href="http://localhost:8978">http://localhost:8978</a>. Ryokan asks you to create an account. Choose a username and a password of 8 to 72 characters. Ryokan has a single user, and this is it.</p>
+<p>Next it asks where finished episodes should go:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Media Root Path</td>
+<td><code>/srv/media/anime</code></td>
+</tr>
+<tr>
+<td>File operation mode</td>
+<td><span data-v="file-mode">Hardlink</span></td>
+</tr>
+</tbody>
+</table>
+<div data-when="server:jellyfin">
+<p>The media server fields on the same page are optional, but filling them in means new episodes show up in Jellyfin straight away:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Jellyfin</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://jellyfin:8096</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The key you made in step 5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="server:emby">
+<p>The media server fields on the same page are optional, but filling them in means new episodes show up in Emby straight away:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Emby</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://emby:8096</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The key you made in step 5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="server:plex">
+<p>The media server fields on the same page are optional, but filling them in means new episodes show up in Plex straight away:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Plex</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://plex:32400</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>Your token from step 5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Click <strong>Save and continue</strong>.</p>
+<p>You can change any of this later under <strong>Settings → General</strong> and <strong>Settings → Connections</strong>. If you click <strong>Skip for now</strong> instead, Ryokan does not import finished downloads until you fill it in there.</p>
+<h2 id="7-add-your-download-client-to-ryokan">7. Add your download client to Ryokan<a class="headerlink" href="#7-add-your-download-client-to-ryokan" title="Anchor link">&para;</a></h2>
+<p>In Ryokan, go to <strong>Settings → Download Clients → Add download client</strong>. Pick the client's kind, give it any name, and fill in the rest:</p>
+<div data-when="client:qbittorrent">
+<p><strong>qBittorrent</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL</td>
+<td><code data-v="url-qbittorrent">http://qbittorrent:8080</code></td>
+</tr>
+<tr>
+<td>Username</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td>Password</td>
+<td>The password you set in step 4</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>anime</code></td>
+</tr>
+<tr>
+<td>Download path</td>
+<td>Leave empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="client:deluge">
+<p><strong>Deluge</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL</td>
+<td><code data-v="url-deluge">http://deluge:8112</code></td>
+</tr>
+<tr>
+<td>Password</td>
+<td>The password you set in step 4</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>anime</code></td>
+</tr>
+<tr>
+<td>Download path</td>
+<td>Leave empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="client:transmission">
+<p><strong>Transmission</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL</td>
+<td><code data-v="url-transmission">http://transmission:9091</code></td>
+</tr>
+<tr>
+<td>Username and password</td>
+<td>Leave empty</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>anime</code></td>
+</tr>
+<tr>
+<td>Download path</td>
+<td>Leave empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="client:rtorrent">
+<p><strong>rTorrent</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL</td>
+<td><code data-v="url-rtorrent">http://rutorrent:8000/RPC2</code></td>
+</tr>
+<tr>
+<td>Username</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td>Password</td>
+<td>The password you set in step 3</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>anime</code></td>
+</tr>
+<tr>
+<td>Download path</td>
+<td>Leave empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div data-when="client:sabnzbd">
+<p><strong>SABnzbd</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URL</td>
+<td><code data-v="url-sabnzbd">http://sabnzbd:8080</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The key you copied in step 4</td>
+</tr>
+<tr>
+<td>Category</td>
+<td><code>anime</code></td>
+</tr>
+<tr>
+<td>Download path</td>
+<td>Leave empty</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Click <strong>Test connection</strong>. It should say Connected, with a version number. If it does not, see <a href="../download-clients/">Download clients</a>. Then save.</p>
+<p>The first torrent client you add becomes the default for torrents, and the first Usenet client the default for Usenet.</p>
+<div class="admonition tip">
+<p class="admonition-title">If the client is not part of this stack</p>
+<p>The addresses above are names that only work between the apps in this stack. For a client running anywhere else, use the address you would type in a browser, for example <code>http://192.168.1.100:8080</code>.</p>
+</div>
+<h2 id="8-add-a-show-and-watch-it-land">8. Add a show and watch it land<a class="headerlink" href="#8-add-a-show-and-watch-it-land" title="Anchor link">&para;</a></h2>
+<p>On the library page, click <strong>+ Add Series</strong>, type a title, and pick the show from the results.</p>
+<p>On the series page, each episode has two buttons. <strong>Interactive search</strong> lists the available releases, best first, each with a <strong>Grab</strong> button. <strong>Auto search</strong> grabs the best one for you. <strong>Search Monitored Episodes</strong> at the top does the same for every monitored episode.</p>
+<p>When the download finishes:</p>
+<ol>
+<li>Ryokan places the file in <code>/srv/media/anime</code>, under <code>&lt;show name&gt;/Season 01/</code>. <span data-when="mode:hardlink">The file is hardlinked, so it takes no extra space and the client keeps seeding.</span><span data-when="mode:copy">The file is copied, so the client keeps seeding its own copy.</span><span data-when="mode:move">The file is moved out of the downloads folder, and Ryokan removes the finished download from the client.</span></li>
+<li>The media server shows the episode straight away if you connected it in step 6. Otherwise it appears after the server's next library scan.</li>
+</ol>
+<p>That is a working install. The sections below are for the extras you picked, and for things you can add later.</p>
+<div data-when="requests:seerr">
+<h2 id="connect-seerr">Connect Seerr<a class="headerlink" href="#connect-seerr" title="Anchor link">&para;</a></h2>
+<p>Seerr talks to Ryokan the way it would talk to Sonarr and Radarr. Ryokan plays both parts.</p>
+<p><strong>In Ryokan</strong>, go to <strong>Settings → Connections</strong>. Under both Seerr sections, turn on <strong>Enable Sonarr API</strong> and <strong>Enable Radarr API</strong>, click <strong>Generate</strong> beside each API Key, and save. Both are off, with no key, on a new install.</p>
+<p><strong>In Seerr</strong>, open <a href="http://localhost:5055">http://localhost:5055</a> and go through its setup. <span data-when="server:jellyfin">When it asks for your media server, the hostname is <code>jellyfin</code> and the port is <code>8096</code>.</span><span data-when="server:emby">When it asks for your media server, the hostname is <code>emby</code> and the port is <code>8096</code>.</span> When it asks for services, add both of these:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Sonarr server (series)</th>
+<th>Radarr server (films)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hostname</td>
+<td><code>ryokan</code></td>
+<td><code>ryokan</code></td>
+</tr>
+<tr>
+<td>Port</td>
+<td><code>8978</code></td>
+<td><code>8978</code></td>
+</tr>
+<tr>
+<td>Use SSL</td>
+<td>Off</td>
+<td>Off</td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The Sonarr key from Ryokan</td>
+<td>The Radarr key from Ryokan</td>
+</tr>
+<tr>
+<td>URL Base</td>
+<td>Leave empty</td>
+<td><code>/radarr</code></td>
+</tr>
+<tr>
+<td>Quality Profile</td>
+<td>Default</td>
+<td>Default</td>
+</tr>
+<tr>
+<td>Root Folder</td>
+<td><code>/srv/media/anime</code></td>
+<td><code>/srv/media/anime</code></td>
+</tr>
+</tbody>
+</table>
+<p>Click <strong>Test</strong> on each before saving. The profile and folder lists fill in once the test passes.</p>
+</div>
+<div data-when="vpn:gluetun">
+<h2 id="vpn-port-forwarding">VPN port forwarding<a class="headerlink" href="#vpn-port-forwarding" title="Anchor link">&para;</a></h2>
+<p>Check first that the VPN is up:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>gluetun<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
+</span></code></pre></div>
+<p>Your torrent clients now download through the VPN, but other peers cannot connect to you until a port is forwarded. Downloads still work without one. Uploads are slow, and private trackers mark you as unconnectable.</p>
+<p>Port forwarding needs a provider that offers it. ProtonVPN, PIA, PrivateVPN and AirVPN do. Mullvad and NordVPN do not. If yours does not, remove the two <code>VPN_PORT_FORWARDING</code> lines from the file and skip this section.</p>
+<p>First, find the port Gluetun was given:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>gluetun<span class="w"> </span>cat<span class="w"> </span>/tmp/gluetun/forwarded_port
+</span></code></pre></div>
+<p>An empty answer means no port yet. Look in the Gluetun log for the reason.</p>
+<p>Then enter that port in your torrent client:</p>
+<div data-when="client:qbittorrent">
+<ul>
+<li><strong>qBittorrent</strong>: under <strong>Tools → Options → Connection</strong>, set <strong>Port used for incoming connections</strong> to the port and untick <strong>Use UPnP / NAT-PMP port forwarding</strong>. Under <strong>Advanced</strong>, set <strong>Network Interface</strong> to <code>tun0</code>.</li>
+</ul>
+</div>
+<div data-when="client:deluge">
+<ul>
+<li><strong>Deluge</strong>: under <strong>Preferences → Network</strong>, set <strong>Incoming Port</strong> to the port, set <strong>Interface</strong> to <code>tun0</code>, and turn off UPnP and NAT-PMP.</li>
+</ul>
+</div>
+<div data-when="client:transmission">
+<ul>
+<li><strong>Transmission</strong>: in the preferences under <strong>Network</strong>, set <strong>Listening port</strong> to the port and untick <strong>Use UPnP or NAT-PMP port forwarding</strong>.</li>
+</ul>
+</div>
+<div data-when="client:rtorrent">
+<ul>
+<li><strong>rTorrent</strong>: in <code>/srv/docker/rutorrent/rtorrent/.rtorrent.rc</code>, set <code>network.port_range.set</code> to the port twice with a dash between, such as <code>51234-51234</code>, and set <code>network.port_random.set = no</code>. Then restart it.</li>
+</ul>
+</div>
+<p>Some providers change the port when the VPN reconnects. If uploads stop, read the port again and update the client.</p>
+<div data-when="client:sabnzbd">
+<p>SABnzbd stays outside the VPN. Usenet is an encrypted connection to your provider, with no peers.</p>
+</div>
+</div>
+<div data-when="proxy:any">
+<h2 id="reverse-proxy">Reverse proxy<a class="headerlink" href="#reverse-proxy" title="Anchor link">&para;</a></h2>
+<p>Once Ryokan opens on your domain over HTTPS, add this to the <code>environment</code> part of the <code>ryokan</code> service in the file and run <code>docker compose up -d</code> again:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">RYOKAN_TRUSTED_PROXY</span><span class="p">:</span><span class="w"> </span><span class="s">"1"</span>
+</span></code></pre></div>
+<p>Ryokan then reads the visitor's real address from the proxy, and marks the login cookie as secure. Only set it behind a proxy. See <a href="../docker/">Docker reference</a>.</p>
+<div data-when="hostcheck:on">
+<p>The host check is on, so your domain has to be in the list of names in step 2. Without it, every page opened through the proxy answers with a "421" error.</p>
+</div>
+</div>
+<div data-when="indexer:none">
+<h2 id="add-an-indexer-optional">Add an indexer (optional)<a class="headerlink" href="#add-an-indexer-optional" title="Anchor link">&para;</a></h2>
+<p>Nyaa is built in, so Ryokan can search for anime without a separate indexer.</p>
+<p>If you already run Prowlarr or Jackett, go to <strong>Settings → Indexers → Add indexer</strong> in Ryokan. Paste the indexer's URL, which ends in <code>/api</code>, and its API key, give it a name, and click <strong>Test</strong>. To run one as part of this stack, pick it under <strong>More options</strong> in step 2.</p>
+</div>
+<div data-when="indexer:prowlarr">
+<h2 id="add-indexers-with-prowlarr">Add indexers with Prowlarr<a class="headerlink" href="#add-indexers-with-prowlarr" title="Anchor link">&para;</a></h2>
+<p>Nyaa is built in, so Ryokan already searches it. Prowlarr adds other trackers and Usenet indexers.</p>
+<p><strong>In Prowlarr</strong>, open <a href="http://localhost:9696">http://localhost:9696</a> and create a login when it asks.</p>
+<ol>
+<li>Go to <strong>Indexers → Add Indexer</strong> and add the ones you use.</li>
+<li>Go to <strong>Settings → General</strong> and copy the <strong>API Key</strong>.</li>
+</ol>
+<p><strong>In Ryokan</strong>, go to <strong>Settings → Indexers → Add indexer</strong>, once for each indexer in Prowlarr:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Anything, such as the indexer's name</td>
+</tr>
+<tr>
+<td>Kind</td>
+<td><code>torznab</code> for a torrent indexer, <code>newznab</code> for a Usenet one</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://prowlarr:9696/1/api</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The key from Prowlarr</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>1</code> in the URL is the indexer's number in Prowlarr. To find it, click the indexer in Prowlarr's list. Its Torznab Url ends in a number and <code>/api</code>.</p>
+<p>Click <strong>Test</strong>, then save.</p>
+</div>
+<div data-when="indexer:jackett">
+<h2 id="add-indexers-with-jackett">Add indexers with Jackett<a class="headerlink" href="#add-indexers-with-jackett" title="Anchor link">&para;</a></h2>
+<p>Nyaa is built in, so Ryokan already searches it. Jackett adds other trackers.</p>
+<p><strong>In Jackett</strong>, open <a href="http://localhost:9117">http://localhost:9117</a>.</p>
+<ol>
+<li>Click <strong>Add indexer</strong> and add the ones you use.</li>
+<li>Copy the <strong>API Key</strong> from the top right of the page.</li>
+</ol>
+<p><strong>In Ryokan</strong>, go to <strong>Settings → Indexers → Add indexer</strong>, once for each indexer in Jackett:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>Anything, such as the indexer's name</td>
+</tr>
+<tr>
+<td>Kind</td>
+<td><code>torznab</code></td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>http://jackett:9117/api/v2.0/indexers/NAME/results/torznab/api</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>The key from Jackett</td>
+</tr>
+</tbody>
+</table>
+<p>Put the indexer's own name in place of <code>NAME</code>. To find it, click <strong>Copy Torznab Feed</strong> beside the indexer in Jackett and look at the address it copies.</p>
+<p>Click <strong>Test</strong>, then save.</p>
+</div>
+<h2 id="link-anilist-or-mal-optional">Link AniList or MAL (optional)<a class="headerlink" href="#link-anilist-or-mal-optional" title="Anchor link">&para;</a></h2>
+<p>To have Ryokan add shows when you mark them as watching on AniList or MAL, see <strong><a href="../external-accounts/">External accounts</a></strong>. Shows you added by hand are not affected.</p>
+<h2 id="if-something-goes-wrong">If something goes wrong<a class="headerlink" href="#if-something-goes-wrong" title="Anchor link">&para;</a></h2>
+<ul>
+<li><strong>The media server cannot read the files.</strong> Ryokan and the media server are then running as different users. Give every app the same user and group ID in step 2, and run the <code>chown</code> command from step 3 again. See <a href="../install/#puid-and-pgid">PUID and PGID</a>.</li>
+<li><strong>An app keeps restarting.</strong> <code>docker compose logs &lt;name&gt;</code> shows why. The usual cause is a settings folder that was not created in step 3.</li>
+<li><strong><a href="../troubleshooting/">Troubleshooting</a></strong> covers the rest.</li>
+</ul>
+<h2 id="what-next">What next?<a class="headerlink" href="#what-next" title="Anchor link">&para;</a></h2>
+<ul>
+<li><strong><a href="../configuration/">Configuration</a></strong>: every Settings tab.</li>
+<li><strong><a href="../manual-import/">Importing an existing library</a></strong>: bring in anime you already have without downloading it again.</li>
+<li><strong><a href="../scoring/">How releases are scored</a></strong>: why Ryokan picks the release it picks.</li>
+</ul>
+<hr />
+<p><em>Last updated: 2026-11-18.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog" role="status" aria-atomic="true">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      
+      
+        
+        
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.tracking","search.suggest","search.highlight","content.code.copy","content.code.annotate"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      
+        <script src="../javascripts/picker.js"></script>
+      
+    
+  </body>
+</html>
