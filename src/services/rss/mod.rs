@@ -1874,6 +1874,27 @@ pub async fn match_library_title(
     title: &str,
     is_batch: bool,
 ) -> Option<(series::Series, Vec<i32>)> {
+    match_library_title_inner(db, title, is_batch, false).await
+}
+
+/// A conservative destination match: the existing season/numbering and
+/// franchise verdict must agree with exactly one whole-name alias match.
+/// Unlike attribution, a fuzzy match or an oldest-row tie is not enough
+/// to choose where a download will write its files.
+pub(crate) async fn match_library_title_exact(
+    db: &sqlx::SqlitePool,
+    title: &str,
+    is_batch: bool,
+) -> Option<(series::Series, Vec<i32>)> {
+    match_library_title_inner(db, title, is_batch, true).await
+}
+
+async fn match_library_title_inner(
+    db: &sqlx::SqlitePool,
+    title: &str,
+    is_batch: bool,
+    require_unique_exact: bool,
+) -> Option<(series::Series, Vec<i32>)> {
     let all_series = series::get_all(db).await.ok()?;
     if all_series.is_empty() {
         return None;
@@ -1895,9 +1916,58 @@ pub async fn match_library_title(
         is_batch,
         source: RssSource::Nyaa,
     };
-    let found = identified_series_match(&pseudo, &all_meta).found()?;
+    let found = if require_unique_exact {
+        // Compare against every tracked entry off the runtime, including
+        // when cached franchise relations are not available to break ties.
+        tokio::task::spawn_blocking(move || {
+            let found = identified_series_match(&pseudo, &all_meta).found()?;
+            uniquely_named_match(&found, &all_meta).then_some(found)
+        })
+        .await
+        .ok()??
+    } else {
+        identified_series_match(&pseudo, &all_meta).found()?
+    };
     let eps: Vec<i32> = found.resolved_eps.iter().copied().collect();
     Some((found.series, eps))
+}
+
+fn uniquely_named_match(found: &MatchResult, all_meta: &[SeriesMeta]) -> bool {
+    let parsed = &found.parsed;
+    // Prove the name from the parser's title zone, not release noise or
+    // episode-range tokens left in the RSS scorer's normalized text.
+    let name = &parsed.series_title_normalized;
+    let core = normalize_core_title(name);
+    let collapsed = collapse_alias(name);
+    let collapsed_core = collapse_alias(&core);
+    let tokens = auto_search::token_set(name);
+    let core_tokens = auto_search::token_set(&core);
+    let view = ItemView {
+        normalized: name,
+        tokens: &tokens,
+        core: &core,
+        core_tokens: &core_tokens,
+        collapsed: &collapsed,
+        collapsed_core: &collapsed_core,
+    };
+    let mut matches = all_meta.iter().filter(|meta| {
+        let aliases = AliasSet {
+            alias_forms: &meta.alias_forms,
+            core_aliases: &meta.core_aliases,
+            core_tokens: &meta.core_tokens,
+            collapsed_aliases: &meta.collapsed_aliases,
+            collapsed_core_aliases: &meta.collapsed_core_aliases,
+            franchise_words: &meta.franchise_words,
+            own_season_words: meta.own_season_words_for(parsed.season_hint),
+        };
+        alias_holds_item(&view, &aliases)
+            && match_against(parsed, &view, meta, all_meta)
+                .is_some_and(|(_, (_, _, placed, _), _)| placed)
+    });
+    matches
+        .next()
+        .is_some_and(|meta| meta.series.id == found.series.id)
+        && matches.next().is_none()
 }
 
 /// A release the history holds for a logical item: its revision and
